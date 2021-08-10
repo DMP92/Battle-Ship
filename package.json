@@ -1,0 +1,11 @@
+{
+  "name": "battle-ship",
+  "version": "1.0.0",
+  "description": "",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "DMP92",
+  "license": "ISC"
+}
