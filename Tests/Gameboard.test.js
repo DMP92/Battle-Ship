@@ -9,16 +9,6 @@ test('if ship is placed on board', () => {
     });
 });
 
-test('if ships properly record hits', () => {
-    const player = Gameboard();
-    player.stageShipsForCreation(2, 1, 'x');
-    expect(player.takeAim(2)).toEqual({
-        status: 'afloat',
-        size: ['safe', 'hit'],
-        coord: [1, 2],
-    });
-});
-
 test('returns miss if no hits were made', () => {
     const smallShip = Gameboard();
     smallShip.stageShipsForCreation(2, 5, 'x');
@@ -27,6 +17,20 @@ test('returns miss if no hits were made', () => {
 
 test('properly records which part of the ship was hit', () => {
     const smallShip = Gameboard();
-    smallShip.stageShipsForCreation(2, 5);
-    smallShip.takeAim(6);
+    smallShip.stageShipsForCreation(2, 5, 'x');
+    expect(smallShip.takeAim(6)).toEqual({
+        status: 'afloat',
+        size: ['safe', 'hit'],
+        coord: [5, 6],
+    });
+});
+
+test('if sunken ships are recorded properly', () => {
+    const smallShip = Gameboard();
+    smallShip.stageShipsForCreation(1, 10, 'x');
+    expect(smallShip.takeAim(10)).toEqual({
+        status: 'sunk!',
+        size: ['hit'],
+        coord: [10],
+    });
 });

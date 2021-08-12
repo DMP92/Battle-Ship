@@ -60,6 +60,7 @@ const ShipFactory = () => {
                     undefined;
             });
         }
+        isSunk(ship);
         return ship;
     };
 

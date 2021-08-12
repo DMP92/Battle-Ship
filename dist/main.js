@@ -7,6 +7,7 @@
   \**************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+/* eslint-disable consistent-return */
 /* eslint-disable default-case */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-unused-expressions */
@@ -121,6 +122,9 @@ play.takeAim(26);
 play.takeAim(27);
 play.takeAim(28);
 play.takeAim(29);
+play.takeAim(70);
+play.takeAim(50);
+play.takeAim(51);
 play.countShips();
 
 module.exports = Gameboard;
@@ -196,6 +200,7 @@ const ShipFactory = () => {
                     undefined;
             });
         }
+        isSunk(ship);
         return ship;
     };
 
