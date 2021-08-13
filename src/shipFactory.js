@@ -55,7 +55,7 @@ const ShipFactory = () => {
         if (chosenPosition.includes(position)) {
             ship.coord.forEach((x) => {
                 const index = ship.coord.indexOf(x);
-                return x === position ?
+                x === position ?
                     ship.size.splice(index, 1, 'hit') :
                     undefined;
             });
