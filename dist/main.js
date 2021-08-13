@@ -34,11 +34,12 @@ const printToDOM = (() => {
     const playerContainer = document.querySelector('.player');
     const compContainer = document.querySelector('.computer');
 
+
     function appendSpaces(player) {
         switch (true) {
         case player === 'computer':
             const compSpaces = document.createElement('div');
-            compSpaces.classList.add('space');
+            compSpaces.classList.add('compSpace');
             compContainer.appendChild(compSpaces);
             break;
         default:
@@ -56,10 +57,39 @@ const printToDOM = (() => {
         return func;
     }
 
+    function playerGrid(grid) {
+        console.log(grid);
+    }
+
+    // function indicate(position, action) {
+    //     const leftPosition = position - 2;
+    //     const rightPosition = position;
+    //     const topPosition = position - 11;
+    //     const bottomPosition = position + 9;
+    //     const color = "box-shadow: inset 0px 0px 3px white; background-color: white;";
+
+    //     if (action === 'hit') {
+    //         playerContainer.children[leftPosition].style.cssText = `${color}`;
+    //         playerContainer.children[rightPosition].style.cssText = `${color}`;
+    //         playerContainer.children[topPosition].style.cssText = `${color}`;
+    //         playerContainer.children[bottomPosition].style.cssText = `${color}`;
+    //     }
+    // }
+
+    function trackPlays(position, action) {
+        console.log(position);
+        action === 'hit' ?
+            playerContainer.children[position - 1].style.cssText = "background-color: black; box-shadow: inset 0px 0px 1px grey" :
+            playerContainer.children[position - 1].style.cssText = "background-color: aquamarine; box-shadow: inset 0px 0px 1px blue";
+        // indicate(position, action);
+    }
+
     return {
         spaces: appendSpaces,
         verifyPlayerID: personOrComputer,
         placeShip,
+        plays: trackPlays,
+        playerGrid,
     };
 })();
 
@@ -84,8 +114,11 @@ module.exports = printToDOM;
 /* eslint-disable operator-linebreak */
 /* eslint-disable no-trailing-spaces */
 /* eslint-disable no-console */
-const print = __webpack_require__(/*! ./DOM */ "./src/DOM.js");
+const DOM = __webpack_require__(/*! ./DOM */ "./src/DOM.js");
 const shipFactory = __webpack_require__(/*! ./shipFactory */ "./src/shipFactory.js");
+
+const print = DOM;
+
 // Contains all required info about the board the game exists in
 const board = {
     player1: { 
@@ -106,6 +139,7 @@ const board = {
         grid: [],
     },
 };
+
 // tracks each hit && miss of all players
 const playerLog = {
     player1: {
@@ -175,6 +209,7 @@ const Gameboard = () => {
                 total.playerShips += 1;
             }
         }
+        console.log(ships);
         return total;
     }
 
@@ -183,6 +218,7 @@ const Gameboard = () => {
         switch (true) {
         case player === 'player1':
             action === 'hit' ? user.hits.push(position) : user.misses.push(position);
+            print.plays(position, action);
             return user;
         case player === 'computer':
             action === 'hit' ? comp.hits.push(position) : comp.misses.push(position);
@@ -201,19 +237,21 @@ const Gameboard = () => {
 
     // Records which ship was hit where
     function hit(ship, position, player) {
-        trackPlays(position, player, 'hit');
         // return 
         const newShip = players.isHit(ship, position);
         isShipStillFloating(newShip);
+        trackPlays(position, player, 'hit');
+        print.plays(position, 'hit');
         return newShip;
     }
 
     // Allows the user and computer to take a shot
     function takeAim(position, player) {
+        console.log(position);
         const newPosition = position - 1;
         const ship = board.player1.grid[newPosition];
-        return typeof board.player1.grid[newPosition] === 'number' ? 
-            trackPlays(position, player, 'miss') : hit(ship, position, player);
+        console.log(typeof board.player1.grid[newPosition] === 'number' ? 
+            trackPlays(position, player, 'miss') : hit(ship, position, player));
     }
 
     // Creates a ship and places it on the board
@@ -230,7 +268,6 @@ const Gameboard = () => {
     function stageShipsForCreation(length, position, axis) {
         const start = position;
         const end = position + length - 1;
-
         switch (true) {
         case axis === 'x': 
             return createShip(start, end, axis);
@@ -299,12 +336,24 @@ const gameboard = __webpack_require__(/*! ./Gameboard */ "./src/Gameboard.js");
 const loop = __webpack_require__(/*! ./gameLoop */ "./src/gameLoop.js");
 const print = __webpack_require__(/*! ./DOM */ "./src/DOM.js");
 
+const Gameboard = gameboard();
+
 const Player = (name, board, turn) => {
     const player = {
         name,
         shot: [],
         turn,
     };
+
+    const playerBoard = document.querySelector('.player').childNodes;
+    const spaces = Array.from(playerBoard);
+
+    function activatePlayerBoard() {
+        spaces.forEach((x) => x.addEventListener('click', (e) => {
+            console.log(spaces.indexOf(e.target) + 1);
+            aim(spaces.indexOf(e.target) + 1);
+        }));
+    }
 
     function turnOrder() {
         // player.turn === true ?
@@ -313,8 +362,8 @@ const Player = (name, board, turn) => {
 
     function shoot(coord) {
         player.shot.push(coord);
-        turnOrder();
-        return board.takeAim(coord);
+        // turnOrder();
+        setTimeout(Gameboard.takeAim(coord, 'player1'), 100);
     }
 
     // eslint-disable-next-line consistent-return
@@ -337,10 +386,9 @@ const Player = (name, board, turn) => {
         aim,
         turnOrder,
         shipAction,
+        activatePlayerBoard,
     };
 };
-
-const run = Player();
 
 module.exports = Player;
 
@@ -393,9 +441,6 @@ const GameLoop = (() => {
         placeShips,
     };
 })();
-
-const currentGame = GameLoop;
-window.addEventListener('load', currentGame.createBoard);
 
 // compBoard.stageShipsForCreation(1, 5, 'x');
 // playerBoard.stageShipsForCreation(1, 5, 'x');
@@ -529,11 +574,34 @@ const Computer = __webpack_require__(/*! ./Computer */ "./src/Computer.js");
 const print = __webpack_require__(/*! ./DOM */ "./src/DOM.js");
 const loop = __webpack_require__(/*! ./gameLoop */ "./src/gameLoop.js");
 
-const space = document.querySelectorAll('.space');
-space.forEach((s) => s.addEventListener('click', (e) => {
-    const spaces = Array.from(space);
-    console.log(spaces.indexOf(e.target) + 1);
-}));
+const game = Gameboard();
+const smallShip = Gameboard();
+const smallShip2 = Gameboard();
+const normalShip = Gameboard();
+const medShip = Gameboard();
+const largeShip = Gameboard();
+const xLargeShip = Gameboard();
+
+const player = Player();
+const currentGame = loop;
+
+window.addEventListener('load', () => {
+    currentGame.createBoard();
+
+    smallShip.stageShipsForCreation(1, 49, 'x');
+    smallShip2.stageShipsForCreation(1, 72, 'x');
+    normalShip.stageShipsForCreation(2, 2, 'x');
+    medShip.stageShipsForCreation(2, 99, 'x');
+    largeShip.stageShipsForCreation(3, 32, 'x');
+    xLargeShip.stageShipsForCreation(5, 65, 'x');
+
+    const playerBoard = document.querySelector('.player').childNodes;
+    const spaces = Array.from(playerBoard);
+    spaces.forEach((space) => space.addEventListener('click', (e) => {
+        player.aim(spaces.indexOf(space) + 1);
+    }));
+});
+
 
 })();
 

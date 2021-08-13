@@ -39,9 +39,6 @@ const GameLoop = (() => {
     };
 })();
 
-const currentGame = GameLoop;
-window.addEventListener('load', currentGame.createBoard);
-
 // compBoard.stageShipsForCreation(1, 5, 'x');
 // playerBoard.stageShipsForCreation(1, 5, 'x');
 

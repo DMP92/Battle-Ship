@@ -4,12 +4,24 @@ const gameboard = require('./Gameboard');
 const loop = require('./gameLoop');
 const print = require('./DOM');
 
+const Gameboard = gameboard();
+
 const Player = (name, board, turn) => {
     const player = {
         name,
         shot: [],
         turn,
     };
+
+    const playerBoard = document.querySelector('.player').childNodes;
+    const spaces = Array.from(playerBoard);
+
+    function activatePlayerBoard() {
+        spaces.forEach((x) => x.addEventListener('click', (e) => {
+            console.log(spaces.indexOf(e.target) + 1);
+            aim(spaces.indexOf(e.target) + 1);
+        }));
+    }
 
     function turnOrder() {
         // player.turn === true ?
@@ -18,8 +30,8 @@ const Player = (name, board, turn) => {
 
     function shoot(coord) {
         player.shot.push(coord);
-        turnOrder();
-        return board.takeAim(coord);
+        // turnOrder();
+        setTimeout(Gameboard.takeAim(coord, 'player1'), 100);
     }
 
     // eslint-disable-next-line consistent-return
@@ -42,9 +54,8 @@ const Player = (name, board, turn) => {
         aim,
         turnOrder,
         shipAction,
+        activatePlayerBoard,
     };
 };
-
-const run = Player();
 
 module.exports = Player;

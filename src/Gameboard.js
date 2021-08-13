@@ -8,8 +8,11 @@
 /* eslint-disable operator-linebreak */
 /* eslint-disable no-trailing-spaces */
 /* eslint-disable no-console */
-const print = require('./DOM');
+const DOM = require('./DOM');
 const shipFactory = require('./shipFactory');
+
+const print = DOM;
+
 // Contains all required info about the board the game exists in
 const board = {
     player1: { 
@@ -30,6 +33,7 @@ const board = {
         grid: [],
     },
 };
+
 // tracks each hit && miss of all players
 const playerLog = {
     player1: {
@@ -99,6 +103,7 @@ const Gameboard = () => {
                 total.playerShips += 1;
             }
         }
+        console.log(ships);
         return total;
     }
 
@@ -107,6 +112,7 @@ const Gameboard = () => {
         switch (true) {
         case player === 'player1':
             action === 'hit' ? user.hits.push(position) : user.misses.push(position);
+            print.plays(position, action);
             return user;
         case player === 'computer':
             action === 'hit' ? comp.hits.push(position) : comp.misses.push(position);
@@ -125,19 +131,21 @@ const Gameboard = () => {
 
     // Records which ship was hit where
     function hit(ship, position, player) {
-        trackPlays(position, player, 'hit');
         // return 
         const newShip = players.isHit(ship, position);
         isShipStillFloating(newShip);
+        trackPlays(position, player, 'hit');
+        print.plays(position, 'hit');
         return newShip;
     }
 
     // Allows the user and computer to take a shot
     function takeAim(position, player) {
+        console.log(position);
         const newPosition = position - 1;
         const ship = board.player1.grid[newPosition];
-        return typeof board.player1.grid[newPosition] === 'number' ? 
-            trackPlays(position, player, 'miss') : hit(ship, position, player);
+        console.log(typeof board.player1.grid[newPosition] === 'number' ? 
+            trackPlays(position, player, 'miss') : hit(ship, position, player));
     }
 
     // Creates a ship and places it on the board
@@ -154,7 +162,6 @@ const Gameboard = () => {
     function stageShipsForCreation(length, position, axis) {
         const start = position;
         const end = position + length - 1;
-
         switch (true) {
         case axis === 'x': 
             return createShip(start, end, axis);

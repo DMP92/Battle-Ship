@@ -1,7 +1,20 @@
 :root {
-    --main-color: whitesmoke;
+    --main-color: rgb(197, 197, 197);
     --dark-color: #2a2a2e;
+    --accent-color: white;
+    --smoke-color: whitesmoke;
+    /* whitesmoke
+        white
+        #2a2a2e
+        rgba(196, 196, 196)
+         */
+    /* --main-color: rgb(196, 196, 196);
+    --dark-color: #2a2a2e;
+    --accent-color: white;
+    --smoke-color: whitesmoke; */
 }
+
+/* 600px should break them into a different grid layout */
 body {
     background-color: var(--main-color);
     position: relative;
@@ -16,6 +29,19 @@ body {
     grid-template-rows: repeat(10, 10%);
     width: 100vw;
     height: 100vh;
+    min-height: 345px;
+}
+
+body::before {
+    content: '';
+    top: 20%;
+    bottom: 0;
+    left: 50%;
+    margin-right: -50%;
+    position: absolute;
+    width: 1px;
+    height: 200px;
+    background-color: white;
 }
 
 .header {
@@ -24,8 +50,9 @@ body {
     justify-content: center;
     align-content: center;
     font-family: Helvetica;
+    font-weight: 300;
     background-color: var(--dark-color);
-    color: white;
+    color: var(--accent-color);
     grid-row: 1/2;
     grid-column: 1/11;
     width: 100%;
@@ -35,6 +62,7 @@ body {
 .player {
     position: relative;
     justify-self: center;
+    align-content: center;
     margin-right: 5px;
     grid-area: "player";
     display: flex;
@@ -46,17 +74,7 @@ body {
     height: 200px;
     border-radius: 2px;
     border: 1px solid #2a2a2e5d;
-}
-
-.player::before {
-    content: '';
-    top: 0;
-    bottom: 0;
-    left: 128.5%;
-    
-    position: absolute;
-    width: 1px;
-    background-color: grey;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
 }
 
 .computer {
@@ -72,6 +90,13 @@ body {
     height: 200px;
     border-radius: 2px;
     border: 1px solid #2a2a2e5d;
+}
+
+.compSpace {
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    box-shadow: inset 0px 0px .5px white;
 }
 
 .space {
@@ -93,11 +118,19 @@ body {
 .footer {
     display: flex;
     justify-content: center;
+    grid-gap: 10px;
     grid-area: 'footer';
     grid-column: 1/11;
     grid-row: 10/11;
     background-color: var(--dark-color);
-    color: var(--main-color);
+    color: var(--accent-color);
+    font-size: 10px;
+    font-weight: 300;
     align-items: center;
     font-family: helvetica;
+}
+
+.github {
+    height: 30px;
+    width: 30px;
 }
