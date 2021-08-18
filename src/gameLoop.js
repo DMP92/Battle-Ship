@@ -1,29 +1,46 @@
+/* eslint-disable default-case */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-return-assign */
 /* eslint-disable operator-linebreak */
 /* eslint-disable no-const-assign */
-const Gameboard = require('./Gameboard');
+const gameBoard = require('./Gameboard');
+
+const gB = gameBoard();
+// Player1 Ships
 
 const GameLoop = (() => {
+    const player1 = {
+        name: null,
+        turn: true,
+    };
+
+    const computer = {
+        name: 'computer',
+        turn: false,
+    };
+
     const turnOrderSwitch = 'player1';
     const playerContainer = document.querySelector('.player');
     const compContainer = document.querySelector('.computer');
 
-    // Creates both player and computer boards
-    function createBoard() {
-        const playerBoard = Gameboard();
-        const compBoard = Gameboard();
-        playerBoard.gridSize(10, 'player1');
-        compBoard.gridSize(10, 'computer');
-    }
-
-    function placeShips(player) {
-        console.log(player);
-    }
-
-    function isItMyTurn(name) {
+    function prepareShips(player) {
         switch (true) {
-        case name !== 'computer':
+        case player === 'computer':
+            gB.randomizedShips('computer');
+            break;
+        case player !== 'computer':
+            player1.name = player;
+            gB.randomizedShips(player);
+            break;
+        }
+    }
+
+    function isItMyTurn(player) {
+        switch (true) {
+        case player !== 'computer':
             return turnOrderSwitch === 'player1' ?
                 'it is not your turn' : turnOrderSwitch = 'player1';
         default:
@@ -34,8 +51,7 @@ const GameLoop = (() => {
 
     return {
         turnOrder: isItMyTurn,
-        createBoard,
-        placeShips,
+        prepareShips,
     };
 })();
 

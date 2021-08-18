@@ -1,27 +1,22 @@
+/* eslint-disable no-console */
 /* eslint-disable operator-linebreak */
 /* eslint-disable no-unused-vars */
-const gameboard = require('./Gameboard');
+const gameBoard = require('./Gameboard');
 const loop = require('./gameLoop');
 const print = require('./DOM');
 
-const Gameboard = gameboard();
+const gB = gameBoard();
 
-const Player = (name, board, turn) => {
+const Player = (name, turn) => {
     const player = {
-        name,
+        name: '',
         shot: [],
         turn,
+        ships: [1, 1, 2, 3, 4, 5],
     };
 
     const playerBoard = document.querySelector('.player').childNodes;
     const spaces = Array.from(playerBoard);
-
-    function activatePlayerBoard() {
-        spaces.forEach((x) => x.addEventListener('click', (e) => {
-            console.log(spaces.indexOf(e.target) + 1);
-            aim(spaces.indexOf(e.target) + 1);
-        }));
-    }
 
     function turnOrder() {
         // player.turn === true ?
@@ -31,7 +26,7 @@ const Player = (name, board, turn) => {
     function shoot(coord) {
         player.shot.push(coord);
         // turnOrder();
-        setTimeout(Gameboard.takeAim(coord, 'player1'), 100);
+        setTimeout(gB.takeAim(coord, 'player1'), 100);
     }
 
     // eslint-disable-next-line consistent-return
@@ -45,12 +40,18 @@ const Player = (name, board, turn) => {
         }
     }
 
+    function activatePlayerBoard() {
+        spaces.forEach((x) => x.addEventListener('click', (e) => {
+            console.log(spaces.indexOf(e.target) + 1);
+            aim(spaces.indexOf(e.target) + 1);
+        }));
+    }
+
     function shipAction(names, funct) {
         print.verifyPlayerID(names, funct);
     }
 
     return {
-        player,
         aim,
         turnOrder,
         shipAction,

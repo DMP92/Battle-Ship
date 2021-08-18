@@ -1,7 +1,8 @@
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-console */
 const printToDOM = (() => {
     const playerContainer = document.querySelector('.player');
     const compContainer = document.querySelector('.computer');
-
 
     function appendSpaces(player) {
         switch (true) {
@@ -46,9 +47,10 @@ const printToDOM = (() => {
 
     function trackPlays(position, action) {
         console.log(position);
-        action === 'hit' ?
-            playerContainer.children[position - 1].style.cssText = "background-color: black; box-shadow: inset 0px 0px 1px grey" :
-            playerContainer.children[position - 1].style.cssText = "background-color: aquamarine; box-shadow: inset 0px 0px 1px blue";
+        // eslint-disable-next-line no-unused-expressions
+        action === 'hit'
+            ? playerContainer.children[position - 1].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black' // #FFA826
+            : playerContainer.children[position - 1].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
         // indicate(position, action);
     }
 

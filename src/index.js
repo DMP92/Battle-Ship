@@ -2,36 +2,27 @@
 /* eslint-disable no-unused-vars */
 const ShipFactory = require('./shipFactory');
 const Gameboard = require('./Gameboard');
-const Player = require('./Player');
-const Computer = require('./Computer');
+const playerFactory = require('./Player');
 const print = require('./DOM');
 const loop = require('./gameLoop');
 
-const game = Gameboard();
-const smallShip = Gameboard();
-const smallShip2 = Gameboard();
-const normalShip = Gameboard();
-const medShip = Gameboard();
-const largeShip = Gameboard();
-const xLargeShip = Gameboard();
-
-const player = Player();
-const currentGame = loop;
+const player1 = playerFactory('Devin', true);
+const computer = playerFactory('computer', false);
 
 window.addEventListener('load', () => {
-    currentGame.createBoard();
+    const compBoard = Gameboard(10, 'computer', { columns: 10, rows: 10 });
+    const userBoard = Gameboard(10, 'player', { columns: 10, rows: 10 });
 
-    smallShip.stageShipsForCreation(1, 49, 'x');
-    smallShip2.stageShipsForCreation(1, 72, 'x');
-    normalShip.stageShipsForCreation(2, 2, 'x');
-    medShip.stageShipsForCreation(2, 99, 'x');
-    largeShip.stageShipsForCreation(3, 32, 'x');
-    xLargeShip.stageShipsForCreation(5, 65, 'x');
+    compBoard.gridSize(10, 'computer');
+    userBoard.gridSize(10, 'player1');
+
+    loop.prepareShips('computer');
+    loop.prepareShips('player1');
 
     const playerBoard = document.querySelector('.player').childNodes;
     const spaces = Array.from(playerBoard);
     spaces.forEach((space) => space.addEventListener('click', (e) => {
-        player.aim(spaces.indexOf(space) + 1);
+        player1.aim(spaces.indexOf(space) + 1);
     }));
 });
-
+// n + (10 * i) > 100 ? n -= (10 * i) : n;

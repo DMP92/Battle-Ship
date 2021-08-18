@@ -1,18 +1,24 @@
-:root {
-    --main-color: rgb(197, 197, 197);
-    --dark-color: #2a2a2e;
-    --accent-color: white;
-    --smoke-color: whitesmoke;
-    /* whitesmoke
-        white
-        #2a2a2e
-        rgba(196, 196, 196)
-         */
-    /* --main-color: rgb(196, 196, 196);
-    --dark-color: #2a2a2e;
-    --accent-color: white;
-    --smoke-color: whitesmoke; */
+@media screen and (min-width: 850px) {
+    :root {
+        --main-color: rgb(197, 197, 197);
+        --dark-color: #2a2a2e;
+        --accent-color: white;
+        --smoke-color: whitesmoke;
+        --body-width: 100vw;
+        --header-fsize: 46px
+    }
 }
+@media screen and (max-width: 849px) {
+    :root {
+        --main-color: rgb(197, 197, 197);
+        --dark-color: #2a2a2e;
+        --accent-color: white;
+        --smoke-color: whitesmoke;
+        --body-width: 100vw;
+        --header-fsize: 32px
+    }
+}
+
 
 /* 600px should break them into a different grid layout */
 body {
@@ -27,14 +33,15 @@ body {
             "footer footer";
     grid-template-columns: repeat(10, 10%);
     grid-template-rows: repeat(10, 10%);
-    width: 100vw;
+    width: var(--body-width);
     height: 100vh;
     min-height: 345px;
 }
 
 body::before {
     content: '';
-    top: 20%;
+    top: 45.5%;
+    margin-top: -100px;
     bottom: 0;
     left: 50%;
     margin-right: -50%;
@@ -49,8 +56,9 @@ body::before {
     display: grid;
     justify-content: center;
     align-content: center;
-    font-family: Helvetica;
+    font-family: Copperplate;
     font-weight: 300;
+    font-size: var(--header-fsize);
     background-color: var(--dark-color);
     color: var(--accent-color);
     grid-row: 1/2;
@@ -60,6 +68,8 @@ body::before {
 }
 
 .player {
+    top: 50%;
+    margin-top: -100px;
     position: relative;
     justify-self: center;
     align-content: center;
@@ -78,6 +88,8 @@ body::before {
 }
 
 .computer {
+    top: 50%;
+    margin-top: -100px;
     position: relative;
     justify-self: center;
     grid-area: "player";
@@ -90,6 +102,8 @@ body::before {
     height: 200px;
     border-radius: 2px;
     border: 1px solid #2a2a2e5d;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
+
 }
 
 .compSpace {
