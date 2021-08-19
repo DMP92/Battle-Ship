@@ -26,7 +26,7 @@ const Player = (name, turn) => {
     function shoot(coord) {
         player.shot.push(coord);
         // turnOrder();
-        setTimeout(gB.takeAim(coord, 'player1'), 100);
+        setTimeout(gB.takeAim(coord, 'player1', 'computer'), 100);
     }
 
     // eslint-disable-next-line consistent-return

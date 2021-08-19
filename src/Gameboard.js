@@ -64,8 +64,6 @@ const gameBoard = (name) => {
     const user = playerLog.player1;
     const comp = playerLog.computer;
 
-    let totalShips = 6;
-
     // Creates the game grid itself
     function gridCreate(x, player) {
         const grid = x * x;
@@ -120,44 +118,55 @@ const gameBoard = (name) => {
     }
 
     // Logs activties of each player (misses / hits)
-    function trackPlays(position, player, action) {
+    function trackPlays(position, target, action) {
         switch (true) {
-        case player === 'player1':
+        case target === 'computer':
             action === 'hit' ? user.hits.push(position) : user.misses.push(position);
-            print.plays(position, action);
+            print.plays(board[target].name, position, action);
             return user;
-        case player === 'computer':
+        case target === 'player1':
             action === 'hit' ? comp.hits.push(position) : comp.misses.push(position);
+            print.plays(board[target].name, position, action);
             return comp;
         }
     }
 
+    function shipSank(ship, status, target) {
+        let totalShips = '';
+        status === 'sank'
+            ? board[target].ships.splice(0, 1, board[target].ships - 1)
+            : board[target].ships;
+        console.log(board[target].ships);
+        return board[target].ships === 0 ? 
+            totalShips = console.log('Their fleet has been lost!') : 
+            totalShips = console.log(`${board[target].ships} of their 6 ships remain!`);
+    }
+
     // checks that the ship that was hit is still floating -- if not, it is subtracted from total remaining ships
-    function isShipStillFloating(ship) {
-        const shipsLeft = board.player1.ships;
+    function isShipStillFloating(ship, target) {
+        const shipsLeft = board[target].ships;
         ship.status === 'sunk!' ? 
-            totalShips -= 1 : totalShips += 0;
-        return totalShips === 0 ? 
-            shipsLeft[0] = 'Your fleet has been lost!' : 
-            shipsLeft[0] = `${totalShips} of 6 ships remain!`;
+            shipSank(ship, 'sank', target) : board[target].ships;
     }
 
     // Records which ship was hit where
-    function hit(ship, position, player) {
+    function hit(ship, position, target) {
         // return 
-        const newShip = players.isHit(ship, position);
-        isShipStillFloating(newShip);
-        trackPlays(position, player, 'hit');
-        print.plays(position, 'hit');
+        const newShip = players.isHit(ship, position, target);
+        isShipStillFloating(newShip, target);
+        console.log(newShip);
+        trackPlays(position, target, 'hit');
+        print.plays(target, position, 'hit');
         return newShip;
     }
 
     // Allows the user and computer to take a shot
-    function takeAim(position, player) {
+    function takeAim(position, player, target) {
         const newPosition = position - 1;
-        const ship = board.computer.grid[newPosition];
-        console.log(typeof board.computer.grid[newPosition] === 'number' ? 
-            trackPlays(position, player, 'miss') : hit(ship, position, player));
+        const ship = board[target].grid[newPosition];
+        console.log(ship);
+        typeof board[target].grid[newPosition] === 'number' ? 
+            trackPlays(position, target, 'miss') : hit(ship, position, target);
     }
 
     function createPlayerShip(ships, newShip) {
@@ -271,7 +280,7 @@ const gameBoard = (name) => {
     function simpleNumberGeneration(playerBoard, axis, i) {
         const filteredGrid = playerBoard.grid.filter((a) => typeof a !== 'object');
         const m = filteredGrid.length;
-        const n = filteredGrid[Math.floor(Math.random() * m)];
+        const n = filteredGrid[Math.abs(Math.floor(Math.random() * m))];
         return axis === 'x'
             ? xPrep(n, i)
             : yPrep(n, i);

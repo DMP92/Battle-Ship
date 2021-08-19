@@ -35,17 +35,19 @@ const shipFactory = (ships) => {
     }
 
     // function for recording each hit on ships
-    const isHit = (ship, position) => {
+    const isHit = (ship, position, target) => {
         const chosenPosition = ship.coord;
+        console.log(ship);
+        const shipSpots = ship.coord[0];
+        console.log(ship.coord, shipSpots);
         // eslint-disable-next-line no-unused-expressions
-        if (chosenPosition.includes(position)) {
-            ship.coord.forEach((x) => {
-                const index = ship.coord.indexOf(x);
-                x === position ?
-                    ship.size.splice(index, 1, 'hit') :
-                    undefined;
-            });
-        }
+        shipSpots.forEach((x) => {
+            const index = shipSpots.indexOf(position - 1);
+            console.log(index, index, index, index, index);
+            x === position - 1
+                ? ship.size.splice(index, 1, 'hit')
+                : '';
+        });
         isSunk(ship);
         return ship;
     };

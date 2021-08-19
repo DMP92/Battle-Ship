@@ -7,6 +7,7 @@
   \********************/
 /***/ ((module) => {
 
+/* eslint-disable no-unused-expressions */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-console */
@@ -60,12 +61,15 @@ const printToDOM = (() => {
         });
     }
 
-    function trackPlays(position, action) {
-        console.log(position);
+    function trackPlays(board, position, action) {
+        let container = '';
+        board === 'computer'
+            ? container = compContainer
+            : container = playerContainer;
         // eslint-disable-next-line no-unused-expressions
         action === 'hit'
-            ? compContainer.children[position - 1].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black' // #FFA826
-            : compContainer.children[position - 1].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
+            ? container.children[(position - 1)].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black' // #FFA826
+            : container.children[(position - 1)].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
         // indicate(position, action);
     }
 
@@ -156,8 +160,6 @@ const gameBoard = (name) => {
     const user = playerLog.player1;
     const comp = playerLog.computer;
 
-    let totalShips = 6;
-
     // Creates the game grid itself
     function gridCreate(x, player) {
         const grid = x * x;
@@ -212,44 +214,55 @@ const gameBoard = (name) => {
     }
 
     // Logs activties of each player (misses / hits)
-    function trackPlays(position, player, action) {
+    function trackPlays(position, target, action) {
         switch (true) {
-        case player === 'player1':
+        case target === 'computer':
             action === 'hit' ? user.hits.push(position) : user.misses.push(position);
-            print.plays(position, action);
+            print.plays(board[target].name, position, action);
             return user;
-        case player === 'computer':
+        case target === 'player1':
             action === 'hit' ? comp.hits.push(position) : comp.misses.push(position);
+            print.plays(board[target].name, position, action);
             return comp;
         }
     }
 
+    function shipSank(ship, status, target) {
+        let totalShips = '';
+        status === 'sank'
+            ? board[target].ships.splice(0, 1, board[target].ships - 1)
+            : board[target].ships;
+        console.log(board[target].ships);
+        return board[target].ships === 0 ? 
+            totalShips = console.log('Their fleet has been lost!') : 
+            totalShips = console.log(`${board[target].ships} of their 6 ships remain!`);
+    }
+
     // checks that the ship that was hit is still floating -- if not, it is subtracted from total remaining ships
-    function isShipStillFloating(ship) {
-        const shipsLeft = board.player1.ships;
+    function isShipStillFloating(ship, target) {
+        const shipsLeft = board[target].ships;
         ship.status === 'sunk!' ? 
-            totalShips -= 1 : totalShips += 0;
-        return totalShips === 0 ? 
-            shipsLeft[0] = 'Your fleet has been lost!' : 
-            shipsLeft[0] = `${totalShips} of 6 ships remain!`;
+            shipSank(ship, 'sank', target) : board[target].ships;
     }
 
     // Records which ship was hit where
-    function hit(ship, position, player) {
+    function hit(ship, position, target) {
         // return 
-        const newShip = players.isHit(ship, position);
-        isShipStillFloating(newShip);
-        trackPlays(position, player, 'hit');
-        print.plays(position, 'hit');
+        const newShip = players.isHit(ship, position, target);
+        isShipStillFloating(newShip, target);
+        console.log(newShip);
+        trackPlays(position, target, 'hit');
+        print.plays(target, position, 'hit');
         return newShip;
     }
 
     // Allows the user and computer to take a shot
-    function takeAim(position, player) {
+    function takeAim(position, player, target) {
         const newPosition = position - 1;
-        const ship = board.computer.grid[newPosition];
-        console.log(typeof board.computer.grid[newPosition] === 'number' ? 
-            trackPlays(position, player, 'miss') : hit(ship, position, player));
+        const ship = board[target].grid[newPosition];
+        console.log(ship);
+        typeof board[target].grid[newPosition] === 'number' ? 
+            trackPlays(position, target, 'miss') : hit(ship, position, target);
     }
 
     function createPlayerShip(ships, newShip) {
@@ -363,7 +376,7 @@ const gameBoard = (name) => {
     function simpleNumberGeneration(playerBoard, axis, i) {
         const filteredGrid = playerBoard.grid.filter((a) => typeof a !== 'object');
         const m = filteredGrid.length;
-        const n = filteredGrid[Math.floor(Math.random() * m)];
+        const n = filteredGrid[Math.abs(Math.floor(Math.random() * m))];
         return axis === 'x'
             ? xPrep(n, i)
             : yPrep(n, i);
@@ -582,7 +595,7 @@ const Player = (name, turn) => {
     function shoot(coord) {
         player.shot.push(coord);
         // turnOrder();
-        setTimeout(gB.takeAim(coord, 'player1'), 100);
+        setTimeout(gB.takeAim(coord, 'player1', 'computer'), 100);
     }
 
     // eslint-disable-next-line consistent-return
@@ -773,17 +786,19 @@ const shipFactory = (ships) => {
     }
 
     // function for recording each hit on ships
-    const isHit = (ship, position) => {
+    const isHit = (ship, position, target) => {
         const chosenPosition = ship.coord;
+        console.log(ship);
+        const shipSpots = ship.coord[0];
+        console.log(ship.coord, shipSpots);
         // eslint-disable-next-line no-unused-expressions
-        if (chosenPosition.includes(position)) {
-            ship.coord.forEach((x) => {
-                const index = ship.coord.indexOf(x);
-                x === position ?
-                    ship.size.splice(index, 1, 'hit') :
-                    undefined;
-            });
-        }
+        shipSpots.forEach((x) => {
+            const index = shipSpots.indexOf(position - 1);
+            console.log(index, index, index, index, index);
+            x === position - 1
+                ? ship.size.splice(index, 1, 'hit')
+                : '';
+        });
         isSunk(ship);
         return ship;
     };
@@ -853,6 +868,7 @@ window.addEventListener('load', () => {
     const spaces = Array.from(computerGrid);
     spaces.forEach((space) => space.addEventListener('click', (e) => {
         player1.aim(spaces.indexOf(space) + 1);
+        computer.aim(spaces.includes(space) + 1);
     }));
 });
 // n + (10 * i) > 100 ? n -= (10 * i) : n;

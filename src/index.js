@@ -20,6 +20,7 @@ window.addEventListener('load', () => {
     const spaces = Array.from(computerGrid);
     spaces.forEach((space) => space.addEventListener('click', (e) => {
         player1.aim(spaces.indexOf(space) + 1);
+        computer.aim(spaces.includes(space) + 1);
     }));
 });
 // n + (10 * i) > 100 ? n -= (10 * i) : n;
