@@ -61,7 +61,6 @@ const board = {
 const gameBoard = (name) => {
     // Creates an instance of shipFactory once here
     const players = shipFactory();
-
     const user = playerLog.player1;
     const comp = playerLog.computer;
 
@@ -84,7 +83,6 @@ const gameBoard = (name) => {
         board[player].name = player;
         player1.name = player;
         board[player].size = { columns: x, rows: x };
-        console.log(board[player]);
         gridCreate(x, player);
         return board;
     }
@@ -134,6 +132,7 @@ const gameBoard = (name) => {
         }
     }
 
+    // checks that the ship that was hit is still floating -- if not, it is subtracted from total remaining ships
     function isShipStillFloating(ship) {
         const shipsLeft = board.player1.ships;
         ship.status === 'sunk!' ? 
@@ -156,8 +155,8 @@ const gameBoard = (name) => {
     // Allows the user and computer to take a shot
     function takeAim(position, player) {
         const newPosition = position - 1;
-        const ship = board.player1.grid[newPosition];
-        console.log(typeof board.player1.grid[newPosition] === 'number' ? 
+        const ship = board.computer.grid[newPosition];
+        console.log(typeof board.computer.grid[newPosition] === 'number' ? 
             trackPlays(position, player, 'miss') : hit(ship, position, player));
     }
 
@@ -212,10 +211,10 @@ const gameBoard = (name) => {
                 // playerBoard.grid[position] > 0 && typeof playerBoard.grid[position] === 'number' 
                 //     ? playerBoard.grid.splice(position - 1, 1, `${position} speed before`) 
                 //     : '';
-                // playerBoard.grid[position + length + 10] < 99 && typeof playerBoard.grid[position + length + 10] === 'number' 
-                //     ? playerBoard.grid.splice(position + length, 1, `${position + length - 1} speed after`) 
+                // playerBoard.grid[position + length + 10] < 100 && typeof playerBoard.grid[position + length + 10] === 'number' &&
+                // playerBoard.grid[position + length + 10] > 0
+                //     ? playerBoard.grid.splice(position + length - 1, 1, `${position + length - 2} speed after line 216`) 
                 //     : '';
-                // playerBoard.taken.push(i === 0 ? position : position);
                 // playerBoard.grid[position - 10] > 0 && typeof playerBoard.grid[position - 10] === 'number' 
                 //     ? playerBoard.grid.splice(position - 10, 1, `${position} speed - 10`) 
                 //     : '';
@@ -227,17 +226,16 @@ const gameBoard = (name) => {
         case axis === 'y':
             ship = [];
             for (let i = 0; i < length; i += 1) {
-                ship.push(i === 0 ? position : position += 10);
-                playerBoard.taken.push(position);
-                // Marks spaces around each chosen grid space
+                // ship.push(i === 0 ? position : position += 10);
+                // // Marks spaces around each chosen grid space
                 // playerBoard.grid[position + length + 10] < 99 && typeof playerBoard.grid[position + length + 10] === 'number' 
                 //     ? playerBoard.grid.splice(position + length, 1, `${position + length - 1} speed after`) 
                 //     : '';
                 // playerBoard.grid[position] > 0 && typeof playerBoard.grid[position] === 'number' 
                 //     ? playerBoard.grid.splice(position - 1, 1, `${position} speed before`) 
                 //     : '';
-                // playerBoard.taken.push(i === 0 ? position + 0 : position + (i * 10));
-                // playerBoard.taken.push(i === 0 ? position : position);
+                playerBoard.taken.push(i === 0 ? position : position += 10);
+                ship.push(i === 0 ? position += 0 : position);
                 // playerBoard.grid[position - 1] > 0 && typeof playerBoard.grid[position - 1] === 'number' 
                 //     ? playerBoard.grid.splice(position - 1, 1, `${position} speed - 1`) 
                 //     : '';
@@ -270,36 +268,76 @@ const gameBoard = (name) => {
         }
     }
     
-    function simpleNumberGeneration(playerBoard) {
+    function simpleNumberGeneration(playerBoard, axis, i) {
         const filteredGrid = playerBoard.grid.filter((a) => typeof a !== 'object');
         const m = filteredGrid.length;
         const n = filteredGrid[Math.floor(Math.random() * m)];
+        return axis === 'x'
+            ? xPrep(n, i)
+            : yPrep(n, i);
+    }
+
+    function yPrep(n, i) {
+        const total = n + (10 * i);
+        n + (10 * i) > 100 ? n -= total - 100 : n;
         return n;
     }
 
+    function xPrep(n, i) {
+        // // 9 + 5
+        // const sum = n + i;
+        // // 9 / 10
+        // const newNum = Math.floor((n / 10));
+        // const diff = Math.floor((newNum * 10) / 9);
+        // newNum === 0 ? newNum + 10 : newNum * 10;
+        // sum > diff
+        //     ? n -= (n + i - diff)
+        //     : (newNum * 10) + 9;
+        //     console.log(n, 'X', i);
+        const total = n + i;
+        total > 100 
+            ? n -= n - i
+            : n;
+        total > Math.floor((n / 10)) * 10 + 9
+            ? n -= i 
+            : n;
+        console.log(n, i, 'x');
+        return n;
+    }
+
+    function gridVerification(playerBoard, i, n, axis) {
+        switch (true) {
+        case axis === 'x':
+            for (let z = 0; z < i; z += 1) {
+                // typeof playerBoard.grid[n] === 'object' && n <= 100
+                //     ? console.log('yes, object')
+                //     : console.log('no, number');
+                n += 1;
+            }
+            break;
+        case axis === 'y':
+            for (let z = 0; z < i; z += 1) {
+                typeof playerBoard.grid[n] === 'object' && n <= 100
+                    ? console.log('yes, object Y')
+                    : console.log('no, number Y');
+                console.log(playerBoard.grid[n], n);
+                n += 10;
+            }
+        }
+    }
     // Generates a number, and ensures all ships keep inside of the grid
     function randomNumberGeneration(axis, i, player) {
         let playerBoard = '';
         player === 'computer' ? playerBoard = board.computer : playerBoard = board.player1;
 
-        let n =simpleNumberGeneration(playerBoard);
-       
+        const n = simpleNumberGeneration(playerBoard, axis, i);
+        // axis === 'y' 
+        //     ? gridVerification(playerBoard, i, n, axis)
+        //     : gridVerification(playerBoard, i, n, axis);
         // Conditional that ensures each ship will display within the grid
-        switch (true) {
-        case axis === 'y':
-            return n + (10 * i) > 100 ? n -= (10 * i) : n;
-        default:
-            const sum = n + i;
-            const newNum = Math.floor((n / 10));
-            const diff = (newNum * 10) + 9;
-            newNum === 0 ? newNum + 10 : newNum * 10;
-            sum > diff
-                ? n -= (n + i - diff)
-                : (newNum * 10) + 9;
-            return n;
-        }
+        return n;
     }
-
+           
     function randomAxisGeneration(ship, player) {
         let axis = Math.floor(Math.random() * 2);
         axis === 0 
@@ -310,7 +348,8 @@ const gameBoard = (name) => {
 
     // Crutial step that gathers needed info for proper placement of ships
     function gatherShipMaterials(shipLength, player, axis, i) {
-        prepareShipForCreation(shipLength, randomNumberGeneration(axis, i, player), axis, player, i);
+        prepareShipForCreation(shipLength, randomNumberGeneration(axis, shipLength, player), axis, player, i);
+        console.log(i);
     }
 
     // Functionality for randomizing and placing computer ships
@@ -323,6 +362,13 @@ const gameBoard = (name) => {
             names.gatherShipMaterials(player.shipsLength[i], player, randomAxisGeneration(player.shipsLength[i], player), i);
             i += 1;
         });
+        const colorMyGrid = board.player1.taken;
+        print.playerShipColor(colorMyGrid);
+    }
+
+    function reportGrids() {
+        console.log('Computer:', board.computer.grid);
+        console.log('Player 1:', board.player1.grid);
     }
 
     return {
@@ -337,6 +383,7 @@ const gameBoard = (name) => {
         prepareShipForCreation,
         randomizedShips,
         gatherShipMaterials,
+        reportGrids,
     };
 };
 
@@ -359,14 +406,14 @@ const cShip6 = gameBoard();
 const computer = {
     name: 'computer',
     shipCoord: [],
-    shipsLength: [1, 1, 2, 3, 4, 5],
+    shipsLength: [5, 4, 3, 2, 1, 1],
     shipNames: [cShip1, cShip2, cShip3, cShip4, cShip5, cShip6],
 };
 
 const player1 = {
     name: '',
     shipCoord: [],
-    shipsLength: [1, 1, 2, 3, 4, 5],
+    shipsLength: [5, 4, 3, 2, 1, 1],
     shipNames: [pShip1, pShip2, pShip3, pShip4, pShip5, pShip6],
 };
 

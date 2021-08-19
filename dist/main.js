@@ -7,6 +7,7 @@
   \********************/
 /***/ ((module) => {
 
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-console */
 const printToDOM = (() => {
@@ -53,13 +54,18 @@ const printToDOM = (() => {
     //         playerContainer.children[bottomPosition].style.cssText = `${color}`;
     //     }
     // }
+    function playerShipColor(positions) {
+        positions.forEach((a) => {
+            playerContainer.children[a].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black'; // #FFA826
+        });
+    }
 
     function trackPlays(position, action) {
         console.log(position);
         // eslint-disable-next-line no-unused-expressions
         action === 'hit'
-            ? playerContainer.children[position - 1].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black' // #FFA826
-            : playerContainer.children[position - 1].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
+            ? compContainer.children[position - 1].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black' // #FFA826
+            : compContainer.children[position - 1].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
         // indicate(position, action);
     }
 
@@ -69,6 +75,7 @@ const printToDOM = (() => {
         placeShip,
         plays: trackPlays,
         playerGrid,
+        playerShipColor,
     };
 })();
 
@@ -146,7 +153,6 @@ const board = {
 const gameBoard = (name) => {
     // Creates an instance of shipFactory once here
     const players = shipFactory();
-
     const user = playerLog.player1;
     const comp = playerLog.computer;
 
@@ -169,7 +175,6 @@ const gameBoard = (name) => {
         board[player].name = player;
         player1.name = player;
         board[player].size = { columns: x, rows: x };
-        console.log(board[player]);
         gridCreate(x, player);
         return board;
     }
@@ -219,6 +224,7 @@ const gameBoard = (name) => {
         }
     }
 
+    // checks that the ship that was hit is still floating -- if not, it is subtracted from total remaining ships
     function isShipStillFloating(ship) {
         const shipsLeft = board.player1.ships;
         ship.status === 'sunk!' ? 
@@ -241,8 +247,8 @@ const gameBoard = (name) => {
     // Allows the user and computer to take a shot
     function takeAim(position, player) {
         const newPosition = position - 1;
-        const ship = board.player1.grid[newPosition];
-        console.log(typeof board.player1.grid[newPosition] === 'number' ? 
+        const ship = board.computer.grid[newPosition];
+        console.log(typeof board.computer.grid[newPosition] === 'number' ? 
             trackPlays(position, player, 'miss') : hit(ship, position, player));
     }
 
@@ -297,10 +303,10 @@ const gameBoard = (name) => {
                 // playerBoard.grid[position] > 0 && typeof playerBoard.grid[position] === 'number' 
                 //     ? playerBoard.grid.splice(position - 1, 1, `${position} speed before`) 
                 //     : '';
-                // playerBoard.grid[position + length + 10] < 99 && typeof playerBoard.grid[position + length + 10] === 'number' 
-                //     ? playerBoard.grid.splice(position + length, 1, `${position + length - 1} speed after`) 
+                // playerBoard.grid[position + length + 10] < 100 && typeof playerBoard.grid[position + length + 10] === 'number' &&
+                // playerBoard.grid[position + length + 10] > 0
+                //     ? playerBoard.grid.splice(position + length - 1, 1, `${position + length - 2} speed after line 216`) 
                 //     : '';
-                // playerBoard.taken.push(i === 0 ? position : position);
                 // playerBoard.grid[position - 10] > 0 && typeof playerBoard.grid[position - 10] === 'number' 
                 //     ? playerBoard.grid.splice(position - 10, 1, `${position} speed - 10`) 
                 //     : '';
@@ -312,17 +318,16 @@ const gameBoard = (name) => {
         case axis === 'y':
             ship = [];
             for (let i = 0; i < length; i += 1) {
-                ship.push(i === 0 ? position : position += 10);
-                playerBoard.taken.push(position);
-                // Marks spaces around each chosen grid space
+                // ship.push(i === 0 ? position : position += 10);
+                // // Marks spaces around each chosen grid space
                 // playerBoard.grid[position + length + 10] < 99 && typeof playerBoard.grid[position + length + 10] === 'number' 
                 //     ? playerBoard.grid.splice(position + length, 1, `${position + length - 1} speed after`) 
                 //     : '';
                 // playerBoard.grid[position] > 0 && typeof playerBoard.grid[position] === 'number' 
                 //     ? playerBoard.grid.splice(position - 1, 1, `${position} speed before`) 
                 //     : '';
-                // playerBoard.taken.push(i === 0 ? position + 0 : position + (i * 10));
-                // playerBoard.taken.push(i === 0 ? position : position);
+                playerBoard.taken.push(i === 0 ? position : position += 10);
+                ship.push(i === 0 ? position += 0 : position);
                 // playerBoard.grid[position - 1] > 0 && typeof playerBoard.grid[position - 1] === 'number' 
                 //     ? playerBoard.grid.splice(position - 1, 1, `${position} speed - 1`) 
                 //     : '';
@@ -355,36 +360,76 @@ const gameBoard = (name) => {
         }
     }
     
-    function simpleNumberGeneration(playerBoard) {
+    function simpleNumberGeneration(playerBoard, axis, i) {
         const filteredGrid = playerBoard.grid.filter((a) => typeof a !== 'object');
         const m = filteredGrid.length;
         const n = filteredGrid[Math.floor(Math.random() * m)];
+        return axis === 'x'
+            ? xPrep(n, i)
+            : yPrep(n, i);
+    }
+
+    function yPrep(n, i) {
+        const total = n + (10 * i);
+        n + (10 * i) > 100 ? n -= total - 100 : n;
         return n;
     }
 
+    function xPrep(n, i) {
+        // // 9 + 5
+        // const sum = n + i;
+        // // 9 / 10
+        // const newNum = Math.floor((n / 10));
+        // const diff = Math.floor((newNum * 10) / 9);
+        // newNum === 0 ? newNum + 10 : newNum * 10;
+        // sum > diff
+        //     ? n -= (n + i - diff)
+        //     : (newNum * 10) + 9;
+        //     console.log(n, 'X', i);
+        const total = n + i;
+        total > 100 
+            ? n -= n - i
+            : n;
+        total > Math.floor((n / 10)) * 10 + 9
+            ? n -= i 
+            : n;
+        console.log(n, i, 'x');
+        return n;
+    }
+
+    function gridVerification(playerBoard, i, n, axis) {
+        switch (true) {
+        case axis === 'x':
+            for (let z = 0; z < i; z += 1) {
+                // typeof playerBoard.grid[n] === 'object' && n <= 100
+                //     ? console.log('yes, object')
+                //     : console.log('no, number');
+                n += 1;
+            }
+            break;
+        case axis === 'y':
+            for (let z = 0; z < i; z += 1) {
+                typeof playerBoard.grid[n] === 'object' && n <= 100
+                    ? console.log('yes, object Y')
+                    : console.log('no, number Y');
+                console.log(playerBoard.grid[n], n);
+                n += 10;
+            }
+        }
+    }
     // Generates a number, and ensures all ships keep inside of the grid
     function randomNumberGeneration(axis, i, player) {
         let playerBoard = '';
         player === 'computer' ? playerBoard = board.computer : playerBoard = board.player1;
 
-        let n =simpleNumberGeneration(playerBoard);
-       
+        const n = simpleNumberGeneration(playerBoard, axis, i);
+        // axis === 'y' 
+        //     ? gridVerification(playerBoard, i, n, axis)
+        //     : gridVerification(playerBoard, i, n, axis);
         // Conditional that ensures each ship will display within the grid
-        switch (true) {
-        case axis === 'y':
-            return n + (10 * i) > 100 ? n -= (10 * i) : n;
-        default:
-            const sum = n + i;
-            const newNum = Math.floor((n / 10));
-            const diff = (newNum * 10) + 9;
-            newNum === 0 ? newNum + 10 : newNum * 10;
-            sum > diff
-                ? n -= (n + i - diff)
-                : (newNum * 10) + 9;
-            return n;
-        }
+        return n;
     }
-
+           
     function randomAxisGeneration(ship, player) {
         let axis = Math.floor(Math.random() * 2);
         axis === 0 
@@ -395,7 +440,8 @@ const gameBoard = (name) => {
 
     // Crutial step that gathers needed info for proper placement of ships
     function gatherShipMaterials(shipLength, player, axis, i) {
-        prepareShipForCreation(shipLength, randomNumberGeneration(axis, i, player), axis, player, i);
+        prepareShipForCreation(shipLength, randomNumberGeneration(axis, shipLength, player), axis, player, i);
+        console.log(i);
     }
 
     // Functionality for randomizing and placing computer ships
@@ -408,6 +454,13 @@ const gameBoard = (name) => {
             names.gatherShipMaterials(player.shipsLength[i], player, randomAxisGeneration(player.shipsLength[i], player), i);
             i += 1;
         });
+        const colorMyGrid = board.player1.taken;
+        print.playerShipColor(colorMyGrid);
+    }
+
+    function reportGrids() {
+        console.log('Computer:', board.computer.grid);
+        console.log('Player 1:', board.player1.grid);
     }
 
     return {
@@ -422,6 +475,7 @@ const gameBoard = (name) => {
         prepareShipForCreation,
         randomizedShips,
         gatherShipMaterials,
+        reportGrids,
     };
 };
 
@@ -444,14 +498,14 @@ const cShip6 = gameBoard();
 const computer = {
     name: 'computer',
     shipCoord: [],
-    shipsLength: [1, 1, 2, 3, 4, 5],
+    shipsLength: [5, 4, 3, 2, 1, 1],
     shipNames: [cShip1, cShip2, cShip3, cShip4, cShip5, cShip6],
 };
 
 const player1 = {
     name: '',
     shipCoord: [],
-    shipsLength: [1, 1, 2, 3, 4, 5],
+    shipsLength: [5, 4, 3, 2, 1, 1],
     shipNames: [pShip1, pShip2, pShip3, pShip4, pShip5, pShip6],
 };
 
@@ -517,8 +571,8 @@ const Player = (name, turn) => {
         ships: [1, 1, 2, 3, 4, 5],
     };
 
-    const playerBoard = document.querySelector('.player').childNodes;
-    const spaces = Array.from(playerBoard);
+    const computerGrid = document.querySelector('.computer').childNodes;
+    const spaces = Array.from(computerGrid);
 
     function turnOrder() {
         // player.turn === true ?
@@ -542,7 +596,7 @@ const Player = (name, turn) => {
         }
     }
 
-    function activatePlayerBoard() {
+    function activateComputerGrid() {
         spaces.forEach((x) => x.addEventListener('click', (e) => {
             console.log(spaces.indexOf(e.target) + 1);
             aim(spaces.indexOf(e.target) + 1);
@@ -557,7 +611,7 @@ const Player = (name, turn) => {
         aim,
         turnOrder,
         shipAction,
-        activatePlayerBoard,
+        activateComputerGrid,
     };
 };
 
@@ -596,10 +650,20 @@ const GameLoop = (() => {
         turn: false,
     };
 
+    // conditionals to handle drag ships button
+    const dragButton = document.querySelector('.drag');
+    const randomizeButton = document.querySelector('.randomize');
+    const dragShipPanel = document.createElement('div');
+    let dragConditional = true;
+
+    // will be used for turn order enforcement
     const turnOrderSwitch = 'player1';
+
+    // variables for targeting each grid container
     const playerContainer = document.querySelector('.player');
     const compContainer = document.querySelector('.computer');
 
+    // allows both computer and user to randomize their ships
     function prepareShips(player) {
         switch (true) {
         case player === 'computer':
@@ -612,6 +676,38 @@ const GameLoop = (() => {
         }
     }
 
+    // function that handles the creation of the ship dragging panel
+    function dragPanel() {
+        const body = document.querySelector('body');
+        dragShipPanel.classList.add('shipContainer');
+        body.appendChild(dragShipPanel);
+        dragConditional = false;
+    }
+
+    // function that handles the deletion of the ship dragging panel
+    function dragPanelClose() {
+        const body = document.querySelector('body');
+        body.removeChild(dragShipPanel);
+        dragConditional = true;
+    }
+
+    // Listens for the drag ships button to be clicked
+    dragButton.addEventListener('click', () => {
+        dragConditional === true
+            ? dragPanel()
+            : dragPanelClose();
+    });
+
+    // Listens for the randomize button
+    randomizeButton.addEventListener('click', () => {
+        prepareShips('computer');
+        prepareShips('player1');
+        const players = document.querySelector('.player');
+        const computers = document.querySelector('.computer');
+        gB.reportGrids();
+    });
+
+    // will use the above created 'turnOrderSwitch' variable to enforce turn order
     function isItMyTurn(player) {
         switch (true) {
         case player !== 'computer':
@@ -628,9 +724,6 @@ const GameLoop = (() => {
         prepareShips,
     };
 })();
-
-// compBoard.stageShipsForCreation(1, 5, 'x');
-// playerBoard.stageShipsForCreation(1, 5, 'x');
 
 module.exports = GameLoop;
 
@@ -756,11 +849,8 @@ window.addEventListener('load', () => {
     compBoard.gridSize(10, 'computer');
     userBoard.gridSize(10, 'player1');
 
-    loop.prepareShips('computer');
-    loop.prepareShips('player1');
-
-    const playerBoard = document.querySelector('.player').childNodes;
-    const spaces = Array.from(playerBoard);
+    const computerGrid = document.querySelector('.computer').childNodes;
+    const spaces = Array.from(computerGrid);
     spaces.forEach((space) => space.addEventListener('click', (e) => {
         player1.aim(spaces.indexOf(space) + 1);
     }));

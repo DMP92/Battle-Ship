@@ -67,6 +67,44 @@ body::before {
     height: 100%;
 }
 
+.drag {
+    background-color: var(--accent-color);
+    grid-row: 2/3;
+    grid-column: 7/9;
+    width: 90%;
+    outline: transparent;
+    border: transparent;
+    margin-top: 25px;
+    border-radius: 1px;
+}
+
+.randomize {
+    background-color: var(--accent-color);
+    grid-row: 2/3;
+    grid-column: 3/5;
+    width: 90%;
+    outline: transparent;
+    border: transparent;
+    margin-top: 25px;
+    border-radius: 1px;
+}
+
+.shipContainer {
+    background-color: var(--dark-color);
+    grid-row: 8/10;
+    height: 90%;
+    grid-column: 4/8;
+    border-radius: 1px;
+}
+
+button:hover {
+    border: 1px solid var(--dark-color);
+}
+
+button:active {
+    background-color: whitesmoke;
+}
+
 .player {
     top: 50%;
     margin-top: -100px;
@@ -120,11 +158,11 @@ body::before {
     box-shadow: inset 0px 0px .5px white;
 }
 
-.space:hover {
+.compSpace:hover {
     box-shadow: inset 0px 0px 5px var(--main-color);
 }
 
-.space:active {
+.compSpace:active {
     box-shadow: inset 0px 0px .5px white;
     background-color: var(--main-color);
 }

@@ -16,11 +16,8 @@ window.addEventListener('load', () => {
     compBoard.gridSize(10, 'computer');
     userBoard.gridSize(10, 'player1');
 
-    loop.prepareShips('computer');
-    loop.prepareShips('player1');
-
-    const playerBoard = document.querySelector('.player').childNodes;
-    const spaces = Array.from(playerBoard);
+    const computerGrid = document.querySelector('.computer').childNodes;
+    const spaces = Array.from(computerGrid);
     spaces.forEach((space) => space.addEventListener('click', (e) => {
         player1.aim(spaces.indexOf(space) + 1);
     }));

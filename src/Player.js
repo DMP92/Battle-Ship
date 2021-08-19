@@ -15,8 +15,8 @@ const Player = (name, turn) => {
         ships: [1, 1, 2, 3, 4, 5],
     };
 
-    const playerBoard = document.querySelector('.player').childNodes;
-    const spaces = Array.from(playerBoard);
+    const computerGrid = document.querySelector('.computer').childNodes;
+    const spaces = Array.from(computerGrid);
 
     function turnOrder() {
         // player.turn === true ?
@@ -40,7 +40,7 @@ const Player = (name, turn) => {
         }
     }
 
-    function activatePlayerBoard() {
+    function activateComputerGrid() {
         spaces.forEach((x) => x.addEventListener('click', (e) => {
             console.log(spaces.indexOf(e.target) + 1);
             aim(spaces.indexOf(e.target) + 1);
@@ -55,7 +55,7 @@ const Player = (name, turn) => {
         aim,
         turnOrder,
         shipAction,
-        activatePlayerBoard,
+        activateComputerGrid,
     };
 };
 
