@@ -13,14 +13,26 @@ window.addEventListener('load', () => {
     const compBoard = Gameboard(10, 'computer', { columns: 10, rows: 10 });
     const userBoard = Gameboard(10, 'player', { columns: 10, rows: 10 });
 
-    compBoard.gridSize(10, 'computer');
-    userBoard.gridSize(10, 'player1');
+    compBoard.arrayCreation(10, 10, 'computer');
+    userBoard.arrayCreation(10, 10, 'player1');
 
     const computerGrid = document.querySelector('.computer').childNodes;
     const spaces = Array.from(computerGrid);
     spaces.forEach((space) => space.addEventListener('click', (e) => {
-        player1.aim(spaces.indexOf(space) + 1);
-        computer.aim(spaces.includes(space) + 1);
+        const n = spaces.indexOf(space);
+        player1.aim(reverseNum(n));
+        computer.aim(reverseNum(n));
     }));
 });
+
+function reverseNum(n) {
+    switch (true) {
+    case n / 10 < 1:
+        return (n * 10).toString().split('');
+    case n % 10 === 0:
+        return 0;
+    default:
+        return n.toString().split('').reverse();
+    }
+}
 // n + (10 * i) > 100 ? n -= (10 * i) : n;
