@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable default-case */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-param-reassign */
@@ -6,46 +7,47 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable operator-linebreak */
 /* eslint-disable no-const-assign */
+const playerFactory = require('./Player');
 const gameBoard = require('./Gameboard');
 
 const gB = gameBoard();
 // Player1 Ships
+const player1 = playerFactory('Devin', true);
+const computer = playerFactory('computer', true);
 
 const GameLoop = (() => {
-    const player1 = {
+    const user = {
         name: null,
         turn: true,
     };
 
-    const computer = {
-        name: 'computer',
-        turn: false,
-    };
-
+    const time = [450, 550, 650, 500, 600, 235];
     // conditionals to handle drag ships button
     const dragButton = document.querySelector('.drag');
-    const randomizeButton = document.querySelector('.randomize');
     const dragShipPanel = document.createElement('div');
     let dragConditional = true;
-
-    // will be used for turn order enforcement
-    const turnOrderSwitch = 'player1';
-
-    // variables for targeting each grid container
-    const playerContainer = document.querySelector('.player');
-    const compContainer = document.querySelector('.computer');
 
     // allows both computer and user to randomize their ships
     function prepareShips(player) {
         switch (true) {
         case player === 'computer':
-            gB.randomizedShips('computer');
+            computer.randomizeShips('computer');
             break;
         case player !== 'computer':
             player1.name = player;
-            gB.randomizedShips(player);
+            player1.randomizeShips(player);
             break;
         }
+    }
+
+    // function that gets players turn, and upon taking the shoot action, switches it
+    function alternateTurn(index) {
+        player1.turnOrder(index, user.turn);
+    }
+
+    // Function that allows the computer to shoot
+    function computerTurn() {
+        computer.aim('computer');
     }
 
     // function that handles the creation of the ship dragging panel
@@ -63,6 +65,28 @@ const GameLoop = (() => {
         dragConditional = true;
     }
 
+    // FUnction allowing each grid space to be clicked
+    function allowGamePlay() {
+        const computerGrid = document.querySelector('.computer').childNodes;
+        const spaces = Array.from(computerGrid);
+
+        // event listeners for the board that is the target of the user
+        spaces.forEach((space) => space.addEventListener('click', (e) => {
+            const n = spaces.indexOf(space);
+            const randomLengthOfTime = Math.floor(Math.random() * time.length);
+
+            player1.checkStreak('computer') === false
+                ? alternateTurn(n)
+                : console.log('not your turn bud');
+            if (player1.checkStreak('player1') === false) {
+                do {
+                    console.log(player1.checkStreak('computer') === true);
+                    setTimeout(() => { computerTurn(); }, 400);
+                } while (player1.checkStreak('computer'));
+            }
+        }));
+    }
+
     // Listens for the drag ships button to be clicked
     dragButton.addEventListener('click', () => {
         dragConditional === true
@@ -70,31 +94,37 @@ const GameLoop = (() => {
             : dragPanelClose();
     });
 
-    // Listens for the randomize button
-    randomizeButton.addEventListener('click', () => {
-        prepareShips('computer');
-        prepareShips('player1');
-        const players = document.querySelector('.player');
-        const computers = document.querySelector('.computer');
-        gB.reportGrids();
+    // eventListener for randomized play
+    const randomizeButton = document.querySelector('.randomize');
+    // event listener for the different playstyle buttons'
+
+    // randomize option
+    window.addEventListener('load', () => {
+        randomizeButton.addEventListener('click', () => {
+            prepareShips('player1');
+            prepareShips('computer');
+            const players = document.querySelector('.player');
+            const computers = document.querySelector('.computer');
+            allowGamePlay();
+        });
     });
 
-    // will use the above created 'turnOrderSwitch' variable to enforce turn order
-    function isItMyTurn(player) {
-        switch (true) {
-        case player !== 'computer':
-            return turnOrderSwitch === 'player1' ?
-                'it is not your turn' : turnOrderSwitch = 'player1';
-        default:
-            return turnOrderSwitch === 'computer' ?
-                'it is not your turn' : turnOrderSwitch = 'computer';
-        }
-    }
-
     return {
-        turnOrder: isItMyTurn,
         prepareShips,
+        alternateTurn,
     };
 })();
+
+// Player1
+const playerOne = gameBoard();
+
+// Computer Ships
+const computerPlayer = gameBoard();
+
+// Creates grid on page load
+window.addEventListener('load', () => {
+    computerPlayer.arrayCreation(10, 10, 'computer');
+    playerOne.arrayCreation(10, 10, 'player1');
+});
 
 module.exports = GameLoop;

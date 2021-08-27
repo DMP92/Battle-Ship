@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-case-declarations */
@@ -9,27 +10,18 @@ const printToDOM = (() => {
     function appendSpaces(player) {
         switch (true) {
         case player === 'computer':
-            const compSpaces = document.createElement('div');
-            compSpaces.classList.add('compSpace');
-            compContainer.appendChild(compSpaces);
             break;
         default:
-            const playerSpaces = document.createElement('div');
-            playerSpaces.classList.add('space');
-            playerContainer.appendChild(playerSpaces);
         }
     }
 
     function placeShip(player) {
-        console.log(`${player} is sucessfull`);
     }
     function personOrComputer(player, func) {
-        console.log(player, func);
         return func;
     }
 
     function playerGrid(grid) {
-        console.log(grid);
     }
 
     // function indicate(position, action) {
@@ -46,21 +38,28 @@ const printToDOM = (() => {
     //         playerContainer.children[bottomPosition].style.cssText = `${color}`;
     //     }
     // }
-    function playerShipColor(positions) {
-        positions.forEach((a) => {
-            playerContainer.children[a].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black'; // #FFA826
-        });
+    function playerShipColor(position, player) {
+        position.style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black';
+        // #FFA826
     }
 
     function trackPlays(board, position, action) {
+        const parsePosition = position.toString().split(',').reverse().join('');
+        const target = parseInt(parsePosition, 10);
         let container = '';
         board === 'computer'
             ? container = compContainer
             : container = playerContainer;
         // eslint-disable-next-line no-unused-expressions
-        action === 'hit'
-            ? container.children[(position - 1)].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black' // #FFA826
-            : container.children[(position - 1)].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
+        if (container === playerContainer) {
+            action === 'hit'
+                ? container.children[target].style.cssText = 'background-color: #FF8D53; box-shadow: inset 0px 0px 1px black' // #FFA826
+                : container.children[target].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
+        } else {
+            action === 'hit'
+                ? container.children[target].style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black' // #FFA826
+                : container.children[target].style.cssText = 'background-color: rgb(197, 197, 197); box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5)';
+        }
         // indicate(position, action);
     }
 

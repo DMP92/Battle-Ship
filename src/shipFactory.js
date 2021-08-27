@@ -1,29 +1,27 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable default-case */
+/* eslint-disable no-case-declarations */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable operator-linebreak */
 /* eslint-disable no-console */
 
+// should be a way to track which part of ship was hit, WITHOUT knowing about
+// the gameboard functionality
+
 // Creates each ship object
-const shipFactory = (ships) => {
+const shipFactory = () => {
     const shipSegments = {
         status: 'afloat',
         size: [],
-        coord: [],
     };
 
-    // gives coordinates to each ship
-    function giveCoord(ship) {
-        shipSegments.coord.push(ship);
-        return shipSegments.coord;
-    }
-
     // creates the ship, and calls giveCoord() for coordinates
-    const createShip = (ship) => {
-        ship.forEach((space) => {
+    const createShip = (length) => {
+        for (let i = 0; i < length; i += 1) {
             shipSegments.size.push('safe');
-        });
-        giveCoord(ship);
+        }
         return shipSegments;
     };
 
@@ -36,18 +34,23 @@ const shipFactory = (ships) => {
 
     // function for recording each hit on ships
     const isHit = (ship, position, target) => {
-        const chosenPosition = ship.coord;
-        console.log(ship);
-        const shipSpots = ship.coord[0];
-        console.log(ship.coord, shipSpots);
-        // eslint-disable-next-line no-unused-expressions
-        shipSpots.forEach((x) => {
-            const index = shipSpots.indexOf(position - 1);
-            console.log(index, index, index, index, index);
-            x === position - 1
-                ? ship.size.splice(index, 1, 'hit')
-                : '';
-        });
+        const start = ship.coord.start;
+        const end = ship.coord.end;
+
+        switch (true) {
+        case ship.size.length === 1:
+            ship.size.splice(0, 1, 'hit');
+            break;
+        case start.y === end.y:
+            const index = position[0] - start.x;
+            ship.size.splice(index, 1, 'hit');
+            break;
+        case start.x === end.x:
+            const indexY = position[1] - start.y;
+            ship.size.splice(indexY, 1, 'hit');
+            break;
+        }
+
         isSunk(ship);
         return ship;
     };
