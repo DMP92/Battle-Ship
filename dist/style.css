@@ -5,7 +5,12 @@
         --accent-color: white;
         --smoke-color: whitesmoke;
         --body-width: 100vw;
-        --header-fsize: 46px
+        --header-fsize: 46px;
+        
+        --comp-col: 6/10;
+        --player-col: 2/6;
+        --player-row: 3/8;
+        --comp-row: 3/8;
     }
 }
 @media screen and (max-width: 849px) {
@@ -15,7 +20,10 @@
         --accent-color: white;
         --smoke-color: whitesmoke;
         --body-width: 100vw;
-        --header-fsize: 32px
+        --header-fsize: 32px;
+        --comp-col: 5/7;
+        --player-col: 5/7;
+        --player-row: 7/9;
     }
 }
 
@@ -68,7 +76,8 @@ body::before {
 }
 
 .drag {
-    background-color: var(--accent-color);
+    background-color: #2a2a2e;
+    color: whitesmoke;
     grid-row: 2/3;
     grid-column: 7/9;
     width: 90%;
@@ -79,7 +88,9 @@ body::before {
 }
 
 .randomize {
-    background-color: var(--accent-color);
+    /* background-color: var(--accent-color); */
+    color: whitesmoke;
+    background-color: #2a2a2e;
     grid-row: 2/3;
     grid-column: 3/5;
     width: 90%;
@@ -98,11 +109,11 @@ body::before {
 }
 
 button:hover {
-    border: 1px solid var(--dark-color);
+    outline: 2px solid aquamarine;
 }
 
 button:active {
-    background-color: whitesmoke;
+    background-color: #545454;
 }
 
 .player {
@@ -115,14 +126,39 @@ button:active {
     grid-area: "player";
     display: flex;
     flex-wrap: wrap;
-    grid-column: 2/6;
-    grid-row: 3/8;
+    grid-column: var(--player-col);
+    grid-row: var(--player-row);
     background-color: var(--dark-color);
     width: 200px;
     height: 200px;
     border-radius: 2px;
     border: 1px solid #2a2a2e5d;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
+}
+
+.player::before {
+    content: 'Computer';
+    text-align: center;
+    display: grid;
+    align-content: center;
+    color: white;
+    position: absolute;
+    z-index: -1;
+    background-color: var(--dark-color);
+    top: 100%;
+    left: 25%;
+    width: 50%;
+    height: 15%;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    font-family: helvetica;
+    border: 1px solid white;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
+}
+
+.activePlayer {
+    outline: 2px solid aquamarine !important;
+    border: 1px solid #2a2a2e5d !important;
 }
 
 .computer {
@@ -133,8 +169,8 @@ button:active {
     grid-area: "player";
     display: flex;
     flex-wrap: wrap;
-    grid-column: 6/10;
-    grid-row: 3/8;
+    grid-column: var(--comp-col);
+    grid-row: var(--comp-row);
     background-color: var(--dark-color);
     width: 200px;
     height: 200px;
@@ -142,6 +178,26 @@ button:active {
     border: 1px solid #2a2a2e5d;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
 
+}
+
+.computer::before {
+    content: 'Player1';
+    text-align: center;
+    display: grid;
+    align-content: center;
+    color: white;
+    position: absolute;
+    z-index: -1;
+    background-color: var(--dark-color);
+    top: 100%;
+    left: 25%;
+    width: 50%;
+    height: 15%;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    font-family: helvetica;
+    border: 1px solid white;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
 }
 
 .compSpace {
@@ -159,7 +215,8 @@ button:active {
 }
 
 .compSpace:hover {
-    box-shadow: inset 0px 0px 5px var(--main-color);
+    background-color: #FFB444;
+    box-shadow: inset 0px 0px 2px black;
 }
 
 .compSpace:active {
@@ -185,4 +242,5 @@ button:active {
 .github {
     height: 30px;
     width: 30px;
+
 }

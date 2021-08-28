@@ -33,6 +33,7 @@ const playerLog = {
     computer: {
         misses: [],
         hits: [],
+        taken: [],
         turn: false,
         streak: false,
     },
@@ -314,10 +315,13 @@ const gameBoard = (name) => {
         return total;
     }
 
+    function logUsedComputerSpots(position) {
+        const place = position.toString().split(',').reverse().join('');
+        const takenSpot = parseInt(place, 10);
+        playerLog.computer.taken.push(takenSpot);
+    }
     // Logs activties of each player (misses / hits)
     function trackPlays(ship, position, target, action) {
-        console.log(playerLog.player1.streak, playerLog.player1);
-        console.log(playerLog.computer.streak, playerLog.computer);
         const shot = [];
         shot.push(position[0]);
         shot.push(position[1]);
@@ -329,6 +333,10 @@ const gameBoard = (name) => {
         case target === 'player1':
             action === 'hit' ? comp.hits.push(shot) : comp.misses.push(shot);
             print.plays(board[target].name, position, action);
+            if (action === 'hit') {
+                computerLogic();
+            }
+            logUsedComputerSpots(position);
             return action;
         }
 
@@ -593,30 +601,125 @@ const gameBoard = (name) => {
         // print.playerShipColor(colorMyGrid);
     }
 
-    function computerSimulatedClick(ele, event, spaces) {
-        const userSpaces = Array.from(spaces);
-        const coordinates = [];
-        const index = userSpaces.indexOf(ele);
-        const newIndex = index.toString();
-        parseCoordinates(newIndex, 'computer', 'player1');
+    function computerLogic() {
+        const base = playerLog.computer.hits[playerLog.computer.hits.length - 1];
+        const randomizedChoices = ['left', 'right', 'up', 'down'];
+        const choice = randomizedChoices[Math.floor(Math.random() * randomizedChoices.length)];
+        let newCoords;
+        const newArray = [];
+        let x;
+        let y;
+
+        switch (true) {
+        case choice === 'left':
+            newCoords = checkForPlacementValidity.isCoordValid(base[0 - 1], base[1]);
+            console.log(newCoords === true);
+            if (newCoords === true) {
+                x = base[0] - 1;
+                y = base[1];
+
+                newArray.push(x);
+                newArray.push(y);
+                setTimeout(parseCoordinates(newArray, 'computer', 'player1'), 400);
+            }
+            break;
+
+        case choice === 'right':
+            console.log(newCoords === true);
+            newCoords = checkForPlacementValidity.isCoordValid(base[0 + 1], base[1]);
+            if (newCoords === true) {
+                x = base[0] + 1;
+                y = base[1];
+
+                newArray.push(x);
+                newArray.push(y);
+                setTimeout(parseCoordinates(newArray, 'computer', 'player1'), 400);
+            }
+            break;
+
+        case choice === 'up':
+            console.log(newCoords === true);
+            newCoords = checkForPlacementValidity.isCoordValid(base[0], base[1 - 1]);
+            if (newCoords === true) {
+                x = base[0];
+                y = base[1] - 1;
+
+                newArray.push(x);
+                newArray.push(y);
+                setTimeout(parseCoordinates(newArray, 'computer', 'player1'), 400);
+            }
+            break;
+
+        case choice === 'down':
+            console.log(newCoords === true);
+            newCoords = checkForPlacementValidity.isCoordValid(base[0], base[1 + 1]);
+            if (newCoords === true) {
+                x = base[0];
+                y = base[1] + 1;
+
+                newArray.push(x);
+                newArray.push(y);
+                setTimeout(parseCoordinates(newArray, 'computer', 'player1'), 400);
+            }
+            break;
+        }
     }
 
-    function hitOrMiss(coord, player) {
+    function parseIndex(index) {
+        let newCoord = [];
+        switch (true) {
+        case index === 0:
+            return newCoord = [0, 0];
+        case index < 10:
+            return newCoord = [index, 0];
+        default:
+            const coord = index.toString().split('').reverse().join('');
+            const x = coord.substring(0, 1);
+            const y = coord.substring(1, 2);
+            newCoord.push(parseInt(x, 10));
+            newCoord.push(parseInt(y, 10));
+            return newCoord;
+        }
+    }
+
+    function computerNumberGeneration() {
+        const coord = Math.floor(Math.random() * 100);
+        const newCoord = parseIndex(coord);
+        return newCoord;
+    }
+
+    function computerSimulatedClick(player, target) {
+        const taken = playerLog.computer.taken;
+        let coord;
+        do {
+            coord = computerNumberGeneration();
+        } while (taken.includes(coord));
+        
+        if (playerLog.computer.streak === false) {
+            parseCoordinates(coord, player, target);
+        }
+    }
+
+    function hitOrMiss(player, coord) {
         let target;
         player === 'computer'
             ? target = 'player1'
             : target = 'computer';
-        parseCoordinates(coord, player, target);
+        player === 'computer'
+            ? computerSimulatedClick(player, target)
+            : parseCoordinates(coord, player, target);
     }
 
     // takes the index of the chosen space and parses it into usable coordinates
     function parseCoordinates(coord, player, target) {
+        console.log(coord);
         takeAim(coord[0], coord[1], player, target);
     }
 
     function shareStreak(currentPlayer) {        
         return playerLog[currentPlayer].streak;
     }
+
     return {
         gridSize, 
         hit, 

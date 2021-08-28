@@ -22,6 +22,8 @@ const Player = (name, turn) => {
     const computerGrid = document.querySelector('.computer').childNodes;
     const spaces = Array.from(computerGrid);
     const randomize = document.querySelector('.randomize');
+    const players = document.querySelector('.player');
+    const computers = document.querySelector('.computer');
 
     function checkStreak(name) {
         return name === 'computer'
@@ -39,12 +41,9 @@ const Player = (name, turn) => {
     }
 
     function turnOrder(index, turn) {
-        const turnValidation = turn;
-        if (turnValidation === true) {
-            aim(name, index);
-        } else {
-            notYourTurn();
-        }
+        computers.classList.toggle('activePlayer');
+        players.classList.toggle('activePlayer');
+        aim(name, index);
     }
 
     function parseIndex(index) {
@@ -65,25 +64,19 @@ const Player = (name, turn) => {
     }
 
     function shoot(index) {
-        shot.push(index);
-        const coord = parseIndex(index);
+        let coord;
+        if (index !== undefined) {
+            shot.push(index);
+            coord = parseIndex(index);
+        }
         name === 'computer'
-            ? gB.hitOrMiss(coord, name)
-            : gB.hitOrMiss(coord, 'player1');
+            ? gB.hitOrMiss(name)
+            : gB.hitOrMiss('player1', coord);
     }
 
-    function computerPrep() {
-        const c = Math.floor(Math.random() * 100);
-        return c;
-    }
     // eslint-disable-next-line consistent-return
     function aim(name, index) {
         if (name === 'computer') {
-            let index = '';
-            do {
-                index = computerPrep();
-            } while (shot.includes(index));
-            shot.push(index);
             shoot(index);
         } else if (name !== 'computer') {
             shot.includes(index)
@@ -109,7 +102,6 @@ const Player = (name, turn) => {
         turnOrder,
         shipAction,
         activateComputerGrid,
-        computerPrep,
     };
 };
 

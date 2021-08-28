@@ -14,6 +14,8 @@ const gB = gameBoard();
 // Player1 Ships
 const player1 = playerFactory('Devin', true);
 const computer = playerFactory('computer', true);
+const players = document.querySelector('.player');
+const computers = document.querySelector('.computer');
 
 const GameLoop = (() => {
     const user = {
@@ -47,6 +49,8 @@ const GameLoop = (() => {
 
     // Function that allows the computer to shoot
     function computerTurn() {
+        computers.classList.toggle('activePlayer');
+        players.classList.toggle('activePlayer');
         computer.aim('computer');
     }
 
@@ -74,16 +78,11 @@ const GameLoop = (() => {
         spaces.forEach((space) => space.addEventListener('click', (e) => {
             const n = spaces.indexOf(space);
             const randomLengthOfTime = Math.floor(Math.random() * time.length);
-
-            player1.checkStreak('computer') === false
-                ? alternateTurn(n)
-                : console.log('not your turn bud');
+            alternateTurn(n);
             if (player1.checkStreak('player1') === false) {
-                do {
-                    console.log(player1.checkStreak('computer') === true);
-                    setTimeout(() => { computerTurn(); }, 400);
-                } while (player1.checkStreak('computer'));
+                setTimeout(() => { computerTurn(); }, 600);
             }
+            // reimplement a system that ONLY allows users turn if the computer's streak is false
         }));
     }
 
@@ -103,8 +102,7 @@ const GameLoop = (() => {
         randomizeButton.addEventListener('click', () => {
             prepareShips('player1');
             prepareShips('computer');
-            const players = document.querySelector('.player');
-            const computers = document.querySelector('.computer');
+            computers.classList.toggle('activePlayer');
             allowGamePlay();
         });
     });
