@@ -1,3 +1,5 @@
+/* eslint-disable default-case */
+/* eslint-disable padded-blocks */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-unused-vars */
@@ -24,22 +26,26 @@ const printToDOM = (() => {
     function playerGrid(grid) {
     }
 
-    // function indicate(position, action) {
-    //     const leftPosition = position - 2;
-    //     const rightPosition = position;
-    //     const topPosition = position - 11;
-    //     const bottomPosition = position + 9;
-    //     const color = "box-shadow: inset 0px 0px 3px white; background-color: white;";
+    function shipCount(player, number) {
+        const root = document.querySelector(':root');
+        switch (true) {
+        case number === 1:
+            player === 'computer'
+                ? root.style.setProperty('--computer-content', `'${number} ship'`)
+                : root.style.setProperty('--player-content', `'${number} ship'`);
+            break;
+        case number !== 1:
+            player === 'computer'
+                ? root.style.setProperty('--computer-content', `'${number} ships'`)
+                : root.style.setProperty('--player-content', `'${number} ships'`);
+            break;
+        }
+    }
 
-    //     if (action === 'hit') {
-    //         playerContainer.children[leftPosition].style.cssText = `${color}`;
-    //         playerContainer.children[rightPosition].style.cssText = `${color}`;
-    //         playerContainer.children[topPosition].style.cssText = `${color}`;
-    //         playerContainer.children[bottomPosition].style.cssText = `${color}`;
-    //     }
-    // }
     function playerShipColor(position, player) {
-        position.style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black';
+        if (player !== 'computer') {
+            position.style.cssText = 'background-color: aquamarine; box-shadow: inset 0px 0px 1px black';
+        }
         // #FFA826
     }
 
@@ -70,6 +76,7 @@ const printToDOM = (() => {
         plays: trackPlays,
         playerGrid,
         playerShipColor,
+        shipCount,
     };
 })();
 

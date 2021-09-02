@@ -23,7 +23,9 @@ const GameLoop = (() => {
         turn: true,
     };
 
+    // Array used to randomize the computer's turn length
     const time = [450, 550, 650, 500, 600, 235];
+
     // conditionals to handle drag ships button
     const dragButton = document.querySelector('.drag');
     const dragShipPanel = document.createElement('div');
@@ -54,23 +56,85 @@ const GameLoop = (() => {
         computer.aim('computer');
     }
 
+    function createDragPanelHeader() {
+        const headerContainer = document.querySelector('.shipContainer');
+        const header = document.createElement('div');
+        header.classList.add('shipContainerHeader');
+        header.textContent = 'Drag Your Ships';
+        headerContainer.appendChild(header);
+    }
+
+    function removeDragPanelHeader() {
+        const headerContainer = document.querySelector('.shipContainer');
+        const header = document.querySelector('.shipContainerHeader');
+        headerContainer.removeChild(header);
+    }
+
+    function removeDragPanelShipHold() {
+        const headerContainer = document.querySelector('.shipContainer');
+        const shipHold = document.querySelector('.shipContainerShipHold');
+        headerContainer.removeChild(shipHold);
+    }
+
+    function createDraggableShips(array) {
+        const draggableShipContainer = document.querySelector('.shipContainerShipHold');
+        array.forEach((ship) => {
+            const shipSpaceContainer = document.createElement('div');
+            shipSpaceContainer.classList.add('shipSpaceContainer');
+            draggableShipContainer.appendChild(shipSpaceContainer);
+            for (let i = 0; i < ship; i += 1) {
+                const ships = document.createElement('div');
+                ships.classList.add('space');
+                ships.classList.add('draggable');
+                shipSpaceContainer.setAttribute('draggable', true);
+                ships.style.cssText = 'grid-area: "ships"; background-color: aquamarine; border: .25px solid black; cursor: move;';
+                shipSpaceContainer.appendChild(ships);
+            }
+        });
+    }
+
+    function removeDraggableShips() {
+        const shipContainer = document.querySelector('.shipContainerShipHold');
+        const ship = document.querySelectorAll('.shipSpaceContainer');
+        ship.forEach((a) => {
+            shipContainer.removeChild(a);
+        });
+    }
+
+    function createDragPanelShipHold() {
+        const shipArray = [4, 3, 2, 2, 1, 1];
+        const headerContainer = document.querySelector('.shipContainer');
+        const shipHold = document.createElement('div');
+        shipHold.classList.add('shipContainerShipHold');
+        headerContainer.appendChild(shipHold);
+        createDraggableShips(shipArray);
+    }
     // function that handles the creation of the ship dragging panel
     function dragPanel() {
-        const body = document.querySelector('body');
+        const gameContainerDiv = document.querySelector('.gameContainer');
+        dragShipPanel.classList.toggle('computer');
         dragShipPanel.classList.add('shipContainer');
-        body.appendChild(dragShipPanel);
+        gameContainerDiv.appendChild(dragShipPanel);
+        createDragPanelHeader();
+        createDragPanelShipHold();
         dragConditional = false;
     }
 
     // function that handles the deletion of the ship dragging panel
     function dragPanelClose() {
-        const body = document.querySelector('body');
-        body.removeChild(dragShipPanel);
+        const gameContainerDiv = document.querySelector('.gameContainer');
+        removeDragPanelHeader();
+        removeDraggableShips();
+        removeDragPanelShipHold();
+        gameContainerDiv.removeChild(dragShipPanel);
+        dragShipPanel.classList.toggle('computer');
+        dragShipPanel.classList.remove('shipContainer');
         dragConditional = true;
     }
 
     // FUnction allowing each grid space to be clicked
     function allowGamePlay() {
+        computers.classList.toggle('activePlayer');
         const computerGrid = document.querySelector('.computer').childNodes;
         const spaces = Array.from(computerGrid);
 
@@ -96,15 +160,16 @@ const GameLoop = (() => {
     // eventListener for randomized play
     const randomizeButton = document.querySelector('.randomize');
     // event listener for the different playstyle buttons'
-
     // randomize option
-    window.addEventListener('load', () => {
-        randomizeButton.addEventListener('click', () => {
-            prepareShips('player1');
-            prepareShips('computer');
-            computers.classList.toggle('activePlayer');
-            allowGamePlay();
-        });
+
+    randomizeButton.addEventListener('mousedown', () => {
+        prepareShips('player1');
+        prepareShips('computer');
+        allowGamePlay();
+    });
+
+    randomizeButton.removeEventListener('mouseup', () => {
+        randomizeButton.removeEventListener('mousedown', () => false);
     });
 
     return {

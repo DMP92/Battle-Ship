@@ -6,11 +6,17 @@
         --smoke-color: whitesmoke;
         --body-width: 100vw;
         --header-fsize: 46px;
-        
         --comp-col: 6/10;
         --player-col: 2/6;
         --player-row: 3/8;
         --comp-row: 3/8;
+        --before-width: 1px;
+        --before-height: 200px;
+        --before-top: 45.5%;
+        --before-left: 50%;
+        --before-margin: -.5px;
+        --computer-content: '6 ships';
+        --player-content: '6 ships';
     }
 }
 @media screen and (max-width: 849px) {
@@ -21,45 +27,96 @@
         --smoke-color: whitesmoke;
         --body-width: 100vw;
         --header-fsize: 32px;
-        --comp-col: 5/7;
-        --player-col: 5/7;
-        --player-row: 7/9;
+        --comp-col: 6/10;
+        --player-col: 2/6;
+        --player-row: 3/8;
+        --comp-row: 3/8;
+        --before-width: 1px;
+        --before-height: 200px;
+        --before-top: 45.5%;
+        --before-left: 50%;
+        --before-margin: -.5px;
+        --computer-content: '6 ships';
+        --player-content: '6 ships';
     }
 }
+
+@media screen and (max-width: 550px) {
+    :root {
+        --main-color: rgb(197, 197, 197);
+        --dark-color: #2a2a2e;
+        --accent-color: white;
+        --smoke-color: whitesmoke;
+        --body-width: 100vw;
+        --header-fsize: 32px;
+        --comp-col: 5/7;
+        --comp-row: 3/6;
+        --player-col: 5/7;
+        --player-row: 7/9;
+        --before-width: 250px;
+        --before-height: 1px;
+        --before-top: 65.8%;
+        --before-left: 50%;
+        --before-margin: -125px;
+        --computer-content: '6 ships';
+        --player-content: '6 ships';
+    }
+}
+
 
 
 /* 600px should break them into a different grid layout */
 body {
     background-color: var(--main-color);
-    position: relative;
     display: grid;
+    width: var(--body-width);
+    height: 100vh;
+    min-height: 345px;
+    overflow: hidden;
+    justify-content: center;
+    align-content: center;
+    grid-template-columns: 100%;
+    grid-template-rows: 100%;
     padding: 0;
     margin: 0;
+}
+
+.gameContainer::before {
+    content: '';
+    margin-top: -100px;
+    bottom: 0;
+    /* top: 45.5%;
+    left: 50%; */
+    margin-left: var(--before-margin);
+    top: var(--before-top);
+    left: var(--before-left);
+    margin-right: 50px;
+    position: absolute;
+    width: var(--before-width);
+    height: var(--before-height);
+    background-color: white;
+}
+
+.gameContainer {
+    position: relative;
+    grid-column: 1/2;
+    grid-row: 1/2;
+    display: grid;
+    width: 100%;
+    height: 100%;
     grid-template-areas: 
             "header header"
             "player comp"
             "footer footer";
     grid-template-columns: repeat(10, 10%);
     grid-template-rows: repeat(10, 10%);
-    width: var(--body-width);
-    height: 100vh;
-    min-height: 345px;
-}
-
-body::before {
-    content: '';
-    top: 45.5%;
-    margin-top: -100px;
-    bottom: 0;
-    left: 50%;
-    margin-right: -50%;
-    position: absolute;
-    width: 1px;
-    height: 200px;
-    background-color: white;
+    justify-self: center;
+    align-self: center;
 }
 
 .header {
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    position: relative;
     grid-area: "header";
     display: grid;
     justify-content: center;
@@ -75,45 +132,122 @@ body::before {
     height: 100%;
 }
 
+/* .header::before {
+    content: '';
+    top: 50px;
+    bottom: 0;
+    left: 50%;
+    width: 220px;
+    height: 100%;
+    margin-left: -110px;
+    background-color: #4f4f57;
+    position: absolute;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    z-index: -1;
+    transition: ease-in 2s;
+} */
+
+.header::before:hover {
+    transition: ease-in 2s;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    margin-left: 0;
+    left: 0;
+    width: 100%;
+}
+
 .drag {
-    background-color: #2a2a2e;
-    color: whitesmoke;
+    color: white;
     grid-row: 2/3;
-    grid-column: 7/9;
-    width: 90%;
+    border-radius: 1px;
+    grid-column: 6/7;
+    width: 85px;
+    height: 40px;
     outline: transparent;
     border: transparent;
-    margin-top: 25px;
-    border-radius: 1px;
+    background-color: #4f4f57;
+    margin-left: 5px;
 }
 
 .randomize {
-    /* background-color: var(--accent-color); */
-    color: whitesmoke;
-    background-color: #2a2a2e;
+    background-color: #4f4f57;
+    border-radius: 1px;
+    color: white;
     grid-row: 2/3;
-    grid-column: 3/5;
-    width: 90%;
+    grid-column: 5/8;
+    width: 85px;
+    height: 40px;
+    right: 50%;
+    margin-left: -42.5;
     outline: transparent;
     border: transparent;
-    margin-top: 25px;
-    border-radius: 1px;
+    margin-left: -30px;
+    margin-right: 5px;
 }
 
 .shipContainer {
     background-color: var(--dark-color);
-    grid-row: 8/10;
-    height: 90%;
-    grid-column: 4/8;
-    border-radius: 1px;
+    height: 200px;
+    width: 200px;
+    display: grid;
+    grid-template-columns: repeat(20, 5%);
+    grid-template-rows: repeat(20, 5%);
+    grid-template-areas: 
+        "header header"
+        "shipContainer";
+    align-content: center;
+    justify-content: center;
+}
+
+.shipContainerHeader {
+    display: grid;
+    grid-area: "header";
+    background-color: #2a2a2e;
+    border-bottom: 2px solid aquamarine;
+    box-shadow: 0px 0px 5px black;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color: aquamarine;
+    text-align: center;
+    grid-column: 1/20;
+    grid-row: 1/3;
+    height: 29%;
+    width: 99%;
+    align-content: center;
+    justify-content: center;
+}
+
+.shipContainerShipHold {
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+    grid-area: 'shipContainer';
+    background-color: #4f4f57;
+    grid-column: 5/15;
+    grid-row: 8/20;
+    height: 69%;
+    width: 99%;
+}
+
+.shipSpaceContainer {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    margin: 5px;
+    background-color: transparent;
+}
+
+.draggable {
+
 }
 
 button:hover {
-    outline: 2px solid aquamarine;
+    color: aquamarine;
+    outline: 1px solid aquamarine;
 }
 
 button:active {
-    background-color: #545454;
+    color: whitesmoke;
 }
 
 .player {
@@ -146,14 +280,36 @@ button:active {
     z-index: -1;
     background-color: var(--dark-color);
     top: 100%;
-    left: 25%;
+    left: 35%;
     width: 50%;
     height: 15%;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
     font-family: helvetica;
     border: 1px solid white;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
+}
+
+.player::after {
+    content: var(--player-content);
+    justify-content: center;
+    align-content: center;
+    color: white;
+    font-family: helvetica;
+    border: 1px solid white;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
+    display: grid;
+    position: absolute;
+    background-color: var(--dark-color);
+    z-index: -1;
+    top: 100%;
+    left: 13%;
+    width: 18%;
+    height: 15%;
+    font-size: 12px;
+    text-align: center;
 }
 
 .activePlayer {
@@ -190,7 +346,7 @@ button:active {
     z-index: -1;
     background-color: var(--dark-color);
     top: 100%;
-    left: 25%;
+    left: 35%;
     width: 50%;
     height: 15%;
     border-bottom-left-radius: 2px;
@@ -198,6 +354,29 @@ button:active {
     font-family: helvetica;
     border: 1px solid white;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
+}
+
+.computer::after {
+    content: var(--computer-content);
+    
+    justify-content: center;
+    text-align: center;
+    align-content: center;
+    color: white;
+    font-family: helvetica;
+    border: 1px solid white;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.568);
+    display: grid;
+    position: absolute;
+    background-color: var(--dark-color);
+    z-index: -1;
+    top: 100%;
+    left: 13%;
+    width: 18%;
+    height: 15%;
+    font-size: 12px;
 }
 
 .compSpace {
