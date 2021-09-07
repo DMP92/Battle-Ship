@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable default-case */
 /* eslint-disable padded-blocks */
 /* eslint-disable no-param-reassign */
@@ -6,6 +7,7 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-console */
 const printToDOM = (() => {
+    const gameContainer = document.querySelector('.gameContainer');
     const playerContainer = document.querySelector('.player');
     const compContainer = document.querySelector('.computer');
 
@@ -69,6 +71,44 @@ const printToDOM = (() => {
         // indicate(position, action);
     }
 
+    function announceWinner(winner) {
+        const modalForAnnouncingWinner = document.createElement('div');
+        modalForAnnouncingWinner.classList.add('winnersDiv');
+        gameContainer.appendChild(modalForAnnouncingWinner);
+        playAgainButton(modalForAnnouncingWinner);
+        announcementText(winner, modalForAnnouncingWinner);
+    }
+    announceWinner('Devin');
+
+    function announcementText(winner, div) {
+        const winnerText = document.createElement('div');
+        winnerText.classList.add('winnerHeader');
+        div.appendChild(winnerText);
+
+        winner === 'computer'
+            ? winnerText.textContent = 'The Computer has won!'
+            : winnerText.textContent = `${winner} has beaten the Computer!`;
+    }
+
+    function playAgainButton(div) {
+        const playAgain = document.createElement('button');
+        playAgain.classList.add('playAgainButton');
+        playAgain.textContent = 'Play Again?';
+        div.appendChild(playAgain);
+        eventListenersForPlayAgainButton(div, playAgain);
+    }
+
+    function eventListenersForPlayAgainButton(div, button) {
+        button.addEventListener('click', () => {
+            removeWinnerAnnouncement(div, button);
+        });
+    }
+
+    function removeWinnerAnnouncement(div, button) {
+        div.removeChild(button);
+        gameContainer.removeChild(div);
+    }
+
     return {
         spaces: appendSpaces,
         verifyPlayerID: personOrComputer,
@@ -77,6 +117,7 @@ const printToDOM = (() => {
         playerGrid,
         playerShipColor,
         shipCount,
+        announceWinner,
     };
 })();
 

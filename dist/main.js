@@ -7,6 +7,7 @@
   \********************/
 /***/ ((module) => {
 
+/* eslint-disable no-use-before-define */
 /* eslint-disable default-case */
 /* eslint-disable padded-blocks */
 /* eslint-disable no-param-reassign */
@@ -15,6 +16,7 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-console */
 const printToDOM = (() => {
+    const gameContainer = document.querySelector('.gameContainer');
     const playerContainer = document.querySelector('.player');
     const compContainer = document.querySelector('.computer');
 
@@ -78,6 +80,44 @@ const printToDOM = (() => {
         // indicate(position, action);
     }
 
+    function announceWinner(winner) {
+        const modalForAnnouncingWinner = document.createElement('div');
+        modalForAnnouncingWinner.classList.add('winnersDiv');
+        gameContainer.appendChild(modalForAnnouncingWinner);
+        playAgainButton(modalForAnnouncingWinner);
+        announcementText(winner, modalForAnnouncingWinner);
+    }
+    announceWinner('Devin');
+
+    function announcementText(winner, div) {
+        const winnerText = document.createElement('div');
+        winnerText.classList.add('winnerHeader');
+        div.appendChild(winnerText);
+
+        winner === 'computer'
+            ? winnerText.textContent = 'The Computer has won!'
+            : winnerText.textContent = `${winner} has beaten the Computer!`;
+    }
+
+    function playAgainButton(div) {
+        const playAgain = document.createElement('button');
+        playAgain.classList.add('playAgainButton');
+        playAgain.textContent = 'Play Again?';
+        div.appendChild(playAgain);
+        eventListenersForPlayAgainButton(div, playAgain);
+    }
+
+    function eventListenersForPlayAgainButton(div, button) {
+        button.addEventListener('click', () => {
+            removeWinnerAnnouncement(div, button);
+        });
+    }
+
+    function removeWinnerAnnouncement(div, button) {
+        div.removeChild(button);
+        gameContainer.removeChild(div);
+    }
+
     return {
         spaces: appendSpaces,
         verifyPlayerID: personOrComputer,
@@ -86,6 +126,7 @@ const printToDOM = (() => {
         playerGrid,
         playerShipColor,
         shipCount,
+        announceWinner,
     };
 })();
 
@@ -198,7 +239,6 @@ const board = {
 };
 console.log(board.player1.grid);
 
-// Module that controls how ships are randomly placed
 const conditionalShipPlacementModule = (() => {
     function isCoordValid(x, y) {
         const min = 0;
@@ -259,8 +299,6 @@ const conditionalShipPlacementModule = (() => {
             }
         
             // checks the top side of ship
-            // if (start.y !== 0) {
-            //     console.log('IT WORKS, IT REALLY, REALLY WORKS');
             for (let i = start.x - 1; i <= end.x + 1; i += 1) {
                 if (playerBoard[start.y - 1]) {
                     if (typeof playerBoard[start.y - 1][i] === 'object') {
@@ -301,7 +339,7 @@ const conditionalShipPlacementModule = (() => {
 
             // checks if right side of vertical ship is free
             for (let i = start.y - 1; i <= end.y + 1; i += 1) {
-                if (typeof playerBoard[start.x + 1][i] === 'object') {
+                if (typeof playerBoard[i][start.x + 1] === 'object') {
                     return false;
                 }
             }
@@ -349,7 +387,6 @@ const gameBoard = (name) => {
     const placeShip = conditionalShipPlacementModule;
 
     function updateStatus(player, action) {
-        console.log(action, player);
         action === 'miss'
             ? playerLog[player].streak = false
             : playerLog[player].streak = true;
@@ -425,7 +462,6 @@ const gameBoard = (name) => {
 
     // if the chosen space exists within computer's availiable choices, remove that space
     function removeComputerChoice(takenSpot) {
-        console.log(takenSpot);
         const availableCompChoice = playerLog.computer.available;
         const index = availableCompChoice.indexOf(takenSpot);
         if (availableCompChoice.includes(takenSpot)) {
@@ -438,14 +474,12 @@ const gameBoard = (name) => {
     function logUsedComputerSpots(position) {
         const place = position.toString().split(',').reverse().join('');
         const takenSpot = parseInt(place, 10);
-        console.log(position, place, takenSpot, 'TEST');
         playerLog.computer.taken.push(takenSpot);
         removeComputerChoice(takenSpot);
     }
 
     // Logs activties of each player (misses / hits)
     function trackPlays(direction, position, target, action) {
-        console.log(direction);
         const shot = [];
         shot.push(position[0]);
         shot.push(position[1]);
@@ -470,7 +504,6 @@ const gameBoard = (name) => {
             }
             if (action === 'miss') {
                 playerLog.computer.taken.push(position);
-                console.log(playerLog.computer.taken);
                 const index = playerLog.computer.direction.indexOf(direction);
                 playerLog.computer.direction.splice(index, 1);
             }
@@ -482,7 +515,6 @@ const gameBoard = (name) => {
 
     // Tracks whether or not all of the ships are destroyed
     function shipSank(ship, status, target) {
-        console.log(target);
         status === 'sunk!'
             ? board[target].ships -= 1
             : board[target].ships;
@@ -490,11 +522,30 @@ const gameBoard = (name) => {
             playerLog.computer.seek = false;
             playerLog.computer.randomizedChoices = ['left', 'right', 'up', 'down'];
         }
+        if (target !== 'computer') {
+            setTimeout(() => { hitOrMiss('computer'); }, 600);
+        }
+
+        if (board[target].ships === 0) announceWinner(target);
+
         return board[target].ships === 0 
             ? print.shipCount(target, board[target].ships) 
             : print.shipCount(target, board[target].ships);
     }
 
+    function announceWinner(target) {
+        let player;
+        target === 'computer'
+            ? player = 'player1'
+            : player = 'computer';
+        
+        print.announceWinner(player);
+        clearBoard();
+    }
+
+    function clearBoard() {
+        
+    }
     // checks that the ship that was hit is still floating -- if not, it is subtracted from total remaining ships
     function isShipStillFloating(ship, target) {
         target === 'computer'   
@@ -515,14 +566,12 @@ const gameBoard = (name) => {
 
     // Allows the user and computer to take a shot
     function takeAim(x, y, player, target, direction) {
-        console.log(direction);
         let playerBoard;
         player === 'computer'   
             ? playerBoard = board.player1.grid
             : playerBoard = board.computer.grid;
         const shipObject = playerBoard[y][x];
         const position = [x, y];
-        console.log(player);
         playerBoard[y][x] === '' || playerBoard[y][x] === 'b'
             ? updateStatus(player, 'miss')
             : updateStatus(player, 'hit');
@@ -610,25 +659,34 @@ const gameBoard = (name) => {
     }
 
     // Randomizes ship placement
-    function createPlayerShips(positions, newShip, axis, player) {
+    function createPlayerShips(positions, newShip, axis, player, length, draggable) {
+        console.log(positions, axis, player, newShip);
+        console.log(player.name);
         const playerBoard = determinePlayer(player.name, 0);
         const secondaryPlayerBoard = determinePlayer(player.name, 1);
         let start = positions.start;
         let end = positions.end;
-        const length = newShip.size.length;
+        length === undefined
+            ? length = newShip.size.length
+            : length = length;
         let coords;
         const cap = 10 - length;
         let newAxis;
-        
+        console.log(player);
+        console.log(draggable);
         // eslint-disable-next-line prefer-const
-        do {
-            newAxis = randomAxisGeneration(newShip, player);
-            coords = simpleNumberGeneration(cap, newAxis, length);
-            start = coords.start;
-            end = coords.end;
-            newShip.coord = coords;
-            axis = newAxis;
-        } while (checkForPlacementValidity.isShipValid(coords, newShip, newAxis, player) === false);
+        coords = positions;
+        if (draggable === undefined) {
+            do {
+                newAxis = randomAxisGeneration(newShip, player);
+                
+                coords = simpleNumberGeneration(cap, newAxis, length);
+                start = coords.start;
+                end = coords.end;
+                newShip.coord = coords;
+                axis = newAxis;
+            } while (checkForPlacementValidity.isShipValid(coords, newShip, newAxis, player) === false);
+        }
         
         switch (true) {
         case axis === 'x':
@@ -639,6 +697,7 @@ const gameBoard = (name) => {
             }
             break;
         case axis === 'y':
+            console.log('Y AXIS');
             for (let i = start.y; i <= end.y; i += 1) {
                 secondaryPlayerBoard[i].splice(start.x, 1, newShip);
                 print.playerShipColor(playerBoard[i][start.x], player.name);
@@ -646,6 +705,68 @@ const gameBoard = (name) => {
             }
             break;
         }
+    }
+
+    function prepareManualShipForPlacement(position, axis, length, draggable) {
+        console.log(position);
+
+        return axis === 'x'
+            ? createShipForManualPlacementXAxis(position, 'x', length)
+            : createShipForManualPlacementYAxis(position, 'y', length);
+    }
+
+    function createShipForManualPlacementXAxis(position, axis, length) {
+        const manuallyPlacedShip = {
+            start: {
+                x: position[0],
+                y: position[1],
+            },
+            end: {
+                x: position[0] + (length - 1),
+                y: position[1],
+            },
+            size: [],
+        };
+        for (let i = 0; i < length; i += 1) {
+            manuallyPlacedShip.size.push(i);
+        }
+        
+        if (checkForPlacementValidity.isShipValid(manuallyPlacedShip, manuallyPlacedShip, 'x', player1) === true) {
+            const shipFactoryFunction = shipFactory();
+            const newShip = shipFactoryFunction.createShip(length);
+            newShip.coord = manuallyPlacedShip;
+            createPlayerShips(manuallyPlacedShip, newShip, 'x', player1, length, true);
+            return true;
+        }
+        return false;
+    }
+
+    function createShipForManualPlacementYAxis(position, axis, length) {
+        const manuallyPlacedShip = {
+            start: {
+                x: position[0],
+                y: position[1],
+            },
+            end: {
+                x: position[0],
+                y: position[1] + (length - 1),
+            },
+            size: [],
+        };
+
+        for (let i = 0; i < length; i += 1) {
+            manuallyPlacedShip.size.push(i);
+        }
+        console.log(manuallyPlacedShip);
+        
+        if (checkForPlacementValidity.isShipValid(manuallyPlacedShip, manuallyPlacedShip, 'y', player1) === true) {
+            const shipFactoryFunction = shipFactory();
+            const newShip = shipFactoryFunction.createShip(length);
+            newShip.coord = manuallyPlacedShip;
+            createPlayerShips(manuallyPlacedShip, newShip, 'y', player1, length, true);
+            return true;
+        }
+        return false;
     }
 
     // Creates a ship and places it on the board
@@ -743,18 +864,50 @@ const gameBoard = (name) => {
         // print.playerShipColor(colorMyGrid);
     }
 
+    function getShipHitData(coords) {
+        if (typeof board.player1.grid[coords[1]][coords[0]] === 'object' && checkForPlacementValidity.isCoordValid(coords[1], coords[0]) === true) {
+            const ship = board.player1.grid[coords[1]][coords[0]];
+            const start = ship.coord.start;
+            const end = ship.coord.end;
+            let conditionOfShipSegments = 0;
+    
+            switch (true) {
+            case start.x === end.x:
+                for (let i = start.y; i <= end.y; i += 1) {
+                    if (i === coords[0]) {
+                        console.log(ship.size[conditionOfShipSegments], 'EXAMPLE OF GETSHIPDATA');
+                        conditionOfShipSegments += 1;
+                        return ship.size[conditionOfShipSegments];
+                    }
+                }
+                break;
+            case start.y === end.y:
+                for (let i = start.x; i <= end.x; i += 1) {
+                    if (i === coords[1]) {
+                        console.log(ship.size[conditionOfShipSegments], 'EXAMPLE OF GETSHIPDATA');
+                        conditionOfShipSegments += 1;
+                        return ship.size[conditionOfShipSegments];
+                    }
+                }
+                break;
+            }
+        }
+    }
+
     function moveLeft(base, newCoords, newArray) {
         newCoords = checkForPlacementValidity.isCoordValid(base[0] - 1, base[1]);
         const newTarget = [base[0] - 1, base[1]];
-        console.log(playerLog.computer.available.includes(newTarget));
-        console.log(playerLog.computer.taken.includes(newTarget), 'taken');
         if (newCoords === true) {
             const x = base[0] - 1;
             const y = base[1];
 
             newArray.push(x);
             newArray.push(y);
-            setTimeout(parseCoordinates(newArray, 'computer', 'player1', 'left'), 400);
+
+            setTimeout(() => { parseCoordinates(newArray, 'computer', 'player1', 'left'); }, 400);
+            typeof board.player1.grid[newArray[1]][newArray[0]] === 'object'
+                ? playerLog.computer.streak = true
+                : playerLog.computer.streak = false;
             const rememberDirection = playerLog.computer.direction;
             rememberDirection.push('left');
         } else if (newCoords === false) {
@@ -765,15 +918,17 @@ const gameBoard = (name) => {
     function moveRight(base, newCoords, newArray) {
         newCoords = checkForPlacementValidity.isCoordValid(base[0] + 1, base[1]);
         const newTarget = [base[0] + 1, base[1]];
-        console.log(playerLog.computer.available.includes(newTarget));
-        console.log(playerLog.computer.taken.includes(newTarget), 'taken');
         if (newCoords === true) {
             const x = base[0] + 1;
             const y = base[1];
 
             newArray.push(x);
             newArray.push(y);
-            setTimeout(parseCoordinates(newArray, 'computer', 'player1', 'right'), 400);
+
+            setTimeout(() => { parseCoordinates(newArray, 'computer', 'player1', 'right'); }, 400);
+            typeof board.player1.grid[newArray[1]][newArray[0]] === 'object'
+                ? playerLog.computer.streak = true
+                : playerLog.computer.streak = false;
             const rememberDirection = playerLog.computer.direction;
             rememberDirection.push('right');
         } else if (newCoords === false) {
@@ -784,15 +939,17 @@ const gameBoard = (name) => {
     function moveUp(base, newCoords, newArray) {
         newCoords = checkForPlacementValidity.isCoordValid(base[0], base[1] - 1);
         const newTarget = [base[0], base[1] - 1];
-        console.log(playerLog.computer.available.includes(newTarget));
-        console.log(playerLog.computer.taken.includes(newTarget), 'taken');
         if (newCoords === true) {
             const x = base[0];
             const y = base[1] - 1;
 
             newArray.push(x);
             newArray.push(y);
-            setTimeout(parseCoordinates(newArray, 'computer', 'player1', 'up'), 400);
+
+            setTimeout(() => { parseCoordinates(newArray, 'computer', 'player1', 'up'); }, 400);
+            typeof board.player1.grid[newArray[1]][newArray[0]] === 'object'
+                ? playerLog.computer.streak = true
+                : playerLog.computer.streak = false;
             const rememberDirection = playerLog.computer.direction;
             rememberDirection.push('up');
         } else if (newCoords === false) {
@@ -803,8 +960,6 @@ const gameBoard = (name) => {
     function moveDown(base, newCoords, newArray) {
         const newTarget = [base[0], base[1] + 1];
         newCoords = checkForPlacementValidity.isCoordValid(base[1], base[0] + 1);
-        console.log(playerLog.computer.available.includes(newTarget));
-        console.log(playerLog.computer.taken.includes(newTarget), 'taken');
         if (newCoords === true) {
             const x = base[0];
             const y = base[1] + 1;
@@ -812,7 +967,10 @@ const gameBoard = (name) => {
             newArray.push(x);
             newArray.push(y);
             console.log(newArray);
-            setTimeout(parseCoordinates(newArray, 'computer', 'player1', 'down'), 400);
+            setTimeout(() => { parseCoordinates(newArray, 'computer', 'player1', 'down'); }, 400);
+            typeof board.player1.grid[newArray[1]][newArray[0]] === 'object'
+                ? playerLog.computer.streak = true
+                : playerLog.computer.streak = false;
             const rememberDirection = playerLog.computer.direction;
             rememberDirection.push('down');
         } else if (newCoords === false) {
@@ -823,26 +981,27 @@ const gameBoard = (name) => {
     function routeDirection(base, newCoords, newArray, direction) {
         switch (true) {
         case direction === 'up':
-            moveUp(base, newCoords, newArray);
+            setTimeout(moveUp(base, newCoords, newArray), 500);
             break;
         case direction === 'down':
-            moveDown(base, newCoords, newArray);
+            setTimeout(moveDown(base, newCoords, newArray), 500);
             break;
         case direction === 'left':
-            moveLeft(base, newCoords, newArray);
+            setTimeout(moveLeft(base, newCoords, newArray), 500);
             break;
         case direction === 'right':
-            moveRight(base, newCoords, newArray);
+            setTimeout(moveRight(base, newCoords, newArray), 500);
             break;
         }
     }
     
-    function haveIGoneHereBefore(coords) {
-        const coordsToString = `${coords[0]}${coords[1]}`;
-        const stringToNumber = parseInt(coordsToString);
-        return playerLog.computer.available.includes(stringToNumber)
-            ? true
-            : false;
+    function iHaveNeverGoneHereBefore(coords) {
+        const coordsToString = `${coords[1]}${coords[0]}`;
+        const stringToNumber = parseInt(coordsToString, 10);
+        if (playerLog.computer.available.includes(stringToNumber) === true) {
+            return true;
+        }
+        return false;
     }
 
     function shipHasBeenFound(direction, action) {
@@ -864,6 +1023,7 @@ const gameBoard = (name) => {
         console.log(targetSpace);
         let lastShip;
         let secondToLastShip;
+        const variedComputerTime = [300, 600, 900, 1200];
         
         // map out the size array in the ship
         // run an indexOf on all 'safe' locations
@@ -887,7 +1047,10 @@ const gameBoard = (name) => {
                             const tempArray = [start.x, i];
                             if (!playerLog.computer.taken.includes(fromArrayToNumber(tempArray))) {
                                 choice = tempArray;
-                                parseCoordinates(tempArray, 'computer', 'player1', 'loop');
+                                setTimeout(() => { parseCoordinates(tempArray, 'computer', 'player1', 'loop'); }, variedComputerTime[i]);
+                                typeof board.player1.grid[tempArray[0]][tempArray[1]] === 'object'
+                                    ? playerLog.computer.streak = true
+                                    : playerLog.computer.streak = false;
                             }
                         }
                         break;
@@ -896,7 +1059,10 @@ const gameBoard = (name) => {
                             const tempArray = [i, start.y];
                             if (!playerLog.computer.taken.includes(fromArrayToNumber(tempArray))) {
                                 choice = tempArray;
-                                parseCoordinates(tempArray, 'computer', 'player1', 'loop');
+                                setTimeout(() => { parseCoordinates(tempArray, 'computer', 'player1', 'loop'); }, variedComputerTime[i]);
+                                typeof board.player1.grid[tempArray[0]][tempArray[1]] === 'object'
+                                    ? playerLog.computer.streak = true
+                                    : playerLog.computer.streak = false;
                             }
                         }
                         break;
@@ -905,7 +1071,7 @@ const gameBoard = (name) => {
                     choice = randomizedChoices[Math.floor(Math.random() * randomizedChoices.length)];
                 }
                 count += 1;
-            } while (haveIGoneHereBefore(choice) === true && checkForPlacementValidity.isCoordValid(choice) === false && count === 14);
+            } while (iHaveNeverGoneHereBefore(choice) === true && checkForPlacementValidity.isCoordValid(choice) === false && count === 14);
         } 
 
         switch (true) {
@@ -976,19 +1142,14 @@ const gameBoard = (name) => {
         console.log(direction);
         if (direction === undefined) {
             const base = playerLog.computer.hits[playerLog.computer.hits.length - 1];
-            console.log(base);
             const foundShip = board.player1.grid[base[1]][base[0]];
-            console.log(foundShip);
             if (foundShip.status === 'afloat') {
-                console.log('above ship logic');
                 playerLog.computer.shipFound.push(foundShip);
                 shipHasBeenFound(direction, action);
             } else if (foundShip.status === 'sunk!') {
-                console.log('generate random shot');
                 hitOrMiss('computer');
             }
         } else {
-            console.log(direction);
             shipHasBeenFound(direction, action);
         }
         
@@ -999,10 +1160,8 @@ const gameBoard = (name) => {
     }
 
     function fromArrayToNumber(array) {
-        console.log(array);
         const newNum = `${array[1]}${array[0]}`;
         const finalProduct = parseInt(newNum, 10);
-        console.log(finalProduct);
         return finalProduct;
     }
 
@@ -1091,6 +1250,10 @@ const gameBoard = (name) => {
         arrayCreation,
         hitOrMiss,
         shareStreak,
+        computerLogic,
+        parseIndex,
+        createShip,
+        prepareManualShipForPlacement,
     };
 };
 
@@ -1244,6 +1407,7 @@ module.exports = Player;
   \*************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-alert */
 /* eslint-disable default-case */
 /* eslint-disable no-unused-expressions */
@@ -1269,14 +1433,7 @@ const GameLoop = (() => {
         turn: true,
     };
 
-    // Array used to randomize the computer's turn length
-    const time = [450, 550, 650, 500, 600, 235];
-
-    // conditionals to handle drag ships button
-    const dragButton = document.querySelector('.drag');
-    const dragShipPanel = document.createElement('div');
-    let dragConditional = true;
-
+    let currenTurn = 'player1';
     // allows both computer and user to randomize their ships
     function prepareShips(player) {
         switch (true) {
@@ -1291,94 +1448,32 @@ const GameLoop = (() => {
     }
 
     // function that gets players turn, and upon taking the shoot action, switches it
-    function alternateTurn(index) {
-        player1.turnOrder(index, user.turn);
+    function playerTurn(index) {
+        // if it isn't the players turn, they will not go
+        if (currenTurn === 'player1' || gB.shareStreak('player1')) {
+            player1.turnOrder(index, user.turn);
+            currenTurn = 'computer';
+        }
     }
 
-    // Function that allows the computer to shoot
+    function isComputerTurnOver() {
+        if (gB.shareStreak('computer') === true) {
+            currenTurn = 'computer';
+        } else {
+            currenTurn = 'player1';
+        }
+    }
+
     function computerTurn() {
-        computers.classList.toggle('activePlayer');
-        players.classList.toggle('activePlayer');
-        computer.aim('computer');
+        // if it isn't the computer's turn, it will not go
+        if (currenTurn === 'computer' || gB.shareStreak('computer')) {
+            computers.classList.toggle('activePlayer');
+            players.classList.toggle('activePlayer');
+            computer.aim('computer');
+        }
+        isComputerTurnOver();
     }
 
-    function createDragPanelHeader() {
-        const headerContainer = document.querySelector('.shipContainer');
-        const header = document.createElement('div');
-        header.classList.add('shipContainerHeader');
-        header.textContent = 'Drag Your Ships';
-        headerContainer.appendChild(header);
-    }
-
-    function removeDragPanelHeader() {
-        const headerContainer = document.querySelector('.shipContainer');
-        const header = document.querySelector('.shipContainerHeader');
-        headerContainer.removeChild(header);
-    }
-
-    function removeDragPanelShipHold() {
-        const headerContainer = document.querySelector('.shipContainer');
-        const shipHold = document.querySelector('.shipContainerShipHold');
-        headerContainer.removeChild(shipHold);
-    }
-
-    function createDraggableShips(array) {
-        const draggableShipContainer = document.querySelector('.shipContainerShipHold');
-        array.forEach((ship) => {
-            const shipSpaceContainer = document.createElement('div');
-            shipSpaceContainer.classList.add('shipSpaceContainer');
-            draggableShipContainer.appendChild(shipSpaceContainer);
-            for (let i = 0; i < ship; i += 1) {
-                const ships = document.createElement('div');
-                ships.classList.add('space');
-                ships.classList.add('draggable');
-                shipSpaceContainer.setAttribute('draggable', true);
-                ships.style.cssText = 'grid-area: "ships"; background-color: aquamarine; border: .25px solid black; cursor: move;';
-                shipSpaceContainer.appendChild(ships);
-            }
-        });
-    }
-
-    function removeDraggableShips() {
-        const shipContainer = document.querySelector('.shipContainerShipHold');
-        const ship = document.querySelectorAll('.shipSpaceContainer');
-        ship.forEach((a) => {
-            shipContainer.removeChild(a);
-        });
-    }
-
-    function createDragPanelShipHold() {
-        const shipArray = [4, 3, 2, 2, 1, 1];
-        const headerContainer = document.querySelector('.shipContainer');
-        const shipHold = document.createElement('div');
-        shipHold.classList.add('shipContainerShipHold');
-        headerContainer.appendChild(shipHold);
-        createDraggableShips(shipArray);
-    }
-    // function that handles the creation of the ship dragging panel
-    function dragPanel() {
-        const gameContainerDiv = document.querySelector('.gameContainer');
-        dragShipPanel.classList.toggle('computer');
-        dragShipPanel.classList.add('shipContainer');
-        gameContainerDiv.appendChild(dragShipPanel);
-        createDragPanelHeader();
-        createDragPanelShipHold();
-        dragConditional = false;
-    }
-
-    // function that handles the deletion of the ship dragging panel
-    function dragPanelClose() {
-        const gameContainerDiv = document.querySelector('.gameContainer');
-        removeDragPanelHeader();
-        removeDraggableShips();
-        removeDragPanelShipHold();
-        gameContainerDiv.removeChild(dragShipPanel);
-        dragShipPanel.classList.toggle('computer');
-        dragShipPanel.classList.remove('shipContainer');
-        dragConditional = true;
-    }
-
-    // FUnction allowing each grid space to be clicked
     function allowGamePlay() {
         computers.classList.toggle('activePlayer');
         const computerGrid = document.querySelector('.computer').childNodes;
@@ -1387,40 +1482,218 @@ const GameLoop = (() => {
         // event listeners for the board that is the target of the user
         spaces.forEach((space) => space.addEventListener('click', (e) => {
             const n = spaces.indexOf(space);
-            const randomLengthOfTime = Math.floor(Math.random() * time.length);
-            alternateTurn(n);
+            playerTurn(n);
             if (player1.checkStreak('player1') === false) {
                 setTimeout(() => { computerTurn(); }, 600);
             }
-            // reimplement a system that ONLY allows users turn if the computer's streak is false
         }));
     }
-
-    // Listens for the drag ships button to be clicked
-    dragButton.addEventListener('click', () => {
-        dragConditional === true
-            ? dragPanel()
-            : dragPanelClose();
-    });
 
     // eventListener for randomized play
     const randomizeButton = document.querySelector('.randomize');
     // event listener for the different playstyle buttons'
-    // randomize option
 
-    randomizeButton.addEventListener('mousedown', () => {
+    function beginGame() {
         prepareShips('player1');
         prepareShips('computer');
         allowGamePlay();
-    });
+    }
 
-    randomizeButton.removeEventListener('mouseup', () => {
-        randomizeButton.removeEventListener('mousedown', () => false);
-    });
+    function endGame() {
+
+    }
 
     return {
         prepareShips,
-        alternateTurn,
+        playerTurn,
+        allowGamePlay,
+        beginGame,
+        endGame,
+    };
+})();
+
+const moduleForThePlaceYourShipsButton = (() => {
+    const gL = GameLoop;
+    // conditionals to handle drag ships button
+    const placeYourShipsButton = document.querySelector('.drag');
+    const panelForPlaceYourShipsUI = document.createElement('div');
+    let dragConditional = true;
+
+    function createPlaceYourShipsHeader() {
+        const placeYourShipsUI = document.querySelector('.placeYourShipsUI');
+        const header = document.createElement('div');
+        header.classList.add('placeShipsHeader');
+        header.textContent = 'Drag Your Ships';
+        const placeYourShipsSubHeader = document.createElement('div');
+        placeYourShipsSubHeader.classList.add('placeShipsHeaderSubHeader');
+        placeYourShipsSubHeader.textContent = '(double click to change axis)';
+        header.appendChild(placeYourShipsSubHeader);
+        placeYourShipsUI.appendChild(header);
+    }
+
+    function removePlaceYourShipsHeader() {
+        const placeYourShipsUI = document.querySelector('.placeYourShipsUI');
+        const header = document.querySelector('.placeShipsHeader');
+        placeYourShipsUI.removeChild(header);
+    }
+
+    function removeEntirePlaceYourShipsContainer() {
+        const placeYourShipsUI = document.querySelector('.placeYourShipsUI');
+        const containerForAllUserShipWrappers = document.querySelector('.containerForAllUserShipWrappers');
+        placeYourShipsUI.removeChild(containerForAllUserShipWrappers);
+    }
+
+    function createDraggableShipsWhenPanelOpens(userShips) {
+        const containerForAllUserShipWrappers = document.querySelector('.containerForAllUserShipWrappers');
+
+        userShips.forEach((ship) => {
+            const shipWrapper = document.createElement('div');
+            shipWrapper.classList.add('containerThatHoldsUserShips');
+            containerForAllUserShipWrappers.appendChild(shipWrapper);
+            shipWrapper.setAttribute('draggable', true);
+            shipWrapper.classList.add('draggable');
+
+            for (let i = 0; i < ship; i += 1) {
+                const shipSegments = document.createElement('div');
+                shipSegments.classList.add('draggableSpace');
+                shipSegments.style.cssText = 'grid-area: "ships"; background-color: aquamarine; border: .25px solid black; cursor: move;';
+                shipWrapper.appendChild(shipSegments);
+            }
+        });
+    }
+
+    function removeDraggableShipsWhenPanelCloses() {
+        const containerForAllUserShipWrappers = document.querySelector('.containerForAllUserShipWrappers');
+        const shipWrappers = document.querySelectorAll('.shipWrapper');
+        shipWrappers.forEach((wrapper) => {
+            containerForAllUserShipWrappers.removeChild(wrapper);
+        });
+    }
+
+    function createPlaceYourShipsContainer() {
+        const shipArray = [4, 3, 2, 2, 1, 1];
+        const placeYourShipsUI = document.querySelector('.placeYourShipsUI');
+        const containerForAllUserShipWrappers = document.createElement('div');
+        containerForAllUserShipWrappers.classList.add('containerForAllUserShipWrappers');
+        placeYourShipsUI.appendChild(containerForAllUserShipWrappers);
+        createDraggableShipsWhenPanelOpens(shipArray);
+    }
+    // function that handles the creation of the ship dragging panel
+    function createsEntirePlaceYourShipsUI() {
+        const gameContainerDiv = document.querySelector('.gameContainer');
+        panelForPlaceYourShipsUI.classList.toggle('computer');
+        panelForPlaceYourShipsUI.classList.add('placeYourShipsUI');
+        gameContainerDiv.appendChild(panelForPlaceYourShipsUI);
+        createPlaceYourShipsHeader();
+        createPlaceYourShipsContainer();
+        dragConditional = false;
+    }
+
+    // function that handles the deletion of the ship dragging panel
+    function closesEntirePlaceYourShipsUI() {
+        const gameContainerDiv = document.querySelector('.gameContainer');
+        removePlaceYourShipsHeader();
+        removeDraggableShipsWhenPanelCloses();
+        removeEntirePlaceYourShipsContainer();
+        gameContainerDiv.removeChild(panelForPlaceYourShipsUI);
+        panelForPlaceYourShipsUI.classList.toggle('computer');
+        panelForPlaceYourShipsUI.classList.remove('placeYourShipsUI');
+        dragConditional = true;
+    }
+
+    function activatePlaceYourShipsButton() {
+        dragConditional === true
+            ? createsEntirePlaceYourShipsUI()
+            : closesEntirePlaceYourShipsUI();
+        listenForShipDrag();
+        switchShipAxis();
+    }
+
+    function listenForShipDrag() {
+        const draggable = document.querySelectorAll('.draggable');
+        const spaces = document.querySelectorAll('.space');
+        const arrayOfSpaces = Array.from(spaces);
+
+        draggable.forEach((drag) => drag.addEventListener('dragstart', () => {
+            drag.classList.add('dragging');
+            listenForShipDragEnd();
+        }));
+    }
+
+    function listenForShipDragEnd() {
+        const shipCurrentlyBeingPlaced = document.querySelector('.dragging');
+        const coords = dragShipOverSpacesToGetCoordinates();
+        shipCurrentlyBeingPlaced.addEventListener('dragend', (e) => {
+            const coord = spaceArray[spaceArray.length - 1];
+            let axis;
+            shipCurrentlyBeingPlaced.classList.contains('horizontalShip')
+                ? axis = 'x'
+                : axis = 'y';
+            const { length } = shipCurrentlyBeingPlaced.children;
+            if (gB.prepareManualShipForPlacement(coord, axis, length, true) === true) {
+                gB.prepareManualShipForPlacement(coord, axis, length, true);
+                // removes ship from Place Your Ships UI after it is placed
+                const shipWrapperContainer = shipCurrentlyBeingPlaced.parentElement;
+                shipWrapperContainer.removeChild(shipCurrentlyBeingPlaced);
+                beginGame();
+            }
+            shipCurrentlyBeingPlaced.classList.remove('dragging');
+        });
+    }
+
+    function beginGame() {
+        const containerForAllUserShipWrappers = document.querySelector('.containerForAllUserShipWrappers');
+        console.log(containerForAllUserShipWrappers.children.length)
+        if (containerForAllUserShipWrappers.children.length === 0) {
+            const playButton = document.createElement('button');
+            containerForAllUserShipWrappers.appendChild(playButton);
+            playButton.textContent = 'Play';
+            playButton.classList.add('playButton');
+            playButton.addEventListener('click', activatePlayButtonEventListener);
+        }
+    }
+
+    function activatePlayButtonEventListener() {
+        activatePlayButton();
+    }
+
+    function activatePlayButton() {
+        closesEntirePlaceYourShipsUI();
+        gB.randomizedShips('computer');
+        gL.allowGamePlay();
+    }
+
+    function switchShipAxis() {
+        const ship = document.querySelectorAll('.containerThatHoldsUserShips');
+        ship.forEach((thisShip) => thisShip.addEventListener('dblclick', () => {
+            thisShip.classList.toggle('horizontalShip');
+        }));
+    }
+
+    const spaceArray = [];
+
+    function dragShipOverSpacesToGetCoordinates() {
+        const spaces = document.querySelectorAll('.space');
+        const arrayOfSpaces = Array.from(spaces);
+        spaces.forEach((thisSpace) => thisSpace.addEventListener('dragover', (e) => {
+            const draggedElement = document.querySelector('.dragging');
+            const { length } = draggedElement.children;
+            const index = arrayOfSpaces.indexOf(thisSpace);
+            const coordinatesOfShipBeingPlaced = gB.parseIndex(index);
+
+            spaceArray.push(coordinatesOfShipBeingPlaced);
+        }));
+    }
+
+    function removeAllEventListeners() {
+        const spaces = document.querySelectorAll('.space');
+        const spaceArrays = Array.from(spaces);
+        spaceArrays.forEach((space) => space.removeEventListener('click'));
+    }
+
+    return {
+        activatePlaceYourShipsButton,
+        removeAllEventListeners,
     };
 })();
 
@@ -1435,6 +1708,37 @@ window.addEventListener('load', () => {
     computerPlayer.arrayCreation(10, 10, 'computer');
     playerOne.arrayCreation(10, 10, 'player1');
 });
+
+const eventListenersForRandomizeAndPlaceShipsButtons = (() => {
+    const randomizeShipsButton = document.querySelector('.randomize');
+    const placeYourShipsButton = document.querySelector('.drag');
+
+    const gL = GameLoop;
+    const placeShipsModule = moduleForThePlaceYourShipsButton;
+
+    function eventListenerStorage() {
+        randomizeShipsButton.addEventListener('click', randomizeShips);
+        placeYourShipsButton.addEventListener('click', placeYourShips);
+    }
+
+    function randomizeShips() {
+        gL.beginGame();
+        placeYourShipsButton.removeEventListener('click', placeYourShips);
+        randomizeShipsButton.removeEventListener('click', randomizeShips);
+    }
+
+    function placeYourShips() {
+        placeShipsModule.activatePlaceYourShipsButton();
+        placeYourShipsButton.removeEventListener('click', placeYourShips);
+        randomizeShipsButton.removeEventListener('click', randomizeShips);
+    }
+
+    return {
+        eventListenerStorage,
+    };
+});
+const initializeEventListeners = eventListenersForRandomizeAndPlaceShipsButtons();
+initializeEventListeners.eventListenerStorage();
 
 module.exports = GameLoop;
 
