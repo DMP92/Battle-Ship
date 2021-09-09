@@ -4,6 +4,14 @@
         --dark-color: #2a2a2e;
         --accent-color: white;
         --smoke-color: whitesmoke;
+        --randomize-col: 5/8;
+        --randomize-fsize: 13px;
+        --randomize-width: 105px;
+        --randomize-height: 60px;
+        --drag-col: 6/8;
+        --drag-width: 105px;
+        --drag-height: 60px;
+        --drag-fsize: 13px;
         --body-width: 100vw;
         --header-fsize: 46px;
         --comp-col: 6/10;
@@ -15,8 +23,11 @@
         --before-top: 45.5%;
         --before-left: 50%;
         --before-margin: -.5px;
+        --before-topm: -100px;
         --computer-content: '6 ships';
         --player-content: '6 ships';
+        --game-mheight: 400px;
+        --body-height: 550px;
     }
 }
 @media screen and (max-width: 849px) {
@@ -25,6 +36,14 @@
         --dark-color: #2a2a2e;
         --accent-color: white;
         --smoke-color: whitesmoke;
+        --randomize-col: 5/8;
+        --randomize-fsize: 13px;
+        --randomize-width: 105px;
+        --randomize-height: 60px;
+        --drag-fsize: 13px;
+        --drag-col: 6/8;
+        --drag-width: 105px;
+        --drag-height: 60px;
         --body-width: 100vw;
         --header-fsize: 32px;
         --comp-col: 6/10;
@@ -36,8 +55,11 @@
         --before-top: 45.5%;
         --before-left: 50%;
         --before-margin: -.5px;
+        --before-topm: -100px;
         --computer-content: '6 ships';
         --player-content: '6 ships';
+        --game-mheight: 400px;
+        --body-height: 550px;
     }
 }
 
@@ -47,19 +69,30 @@
         --dark-color: #2a2a2e;
         --accent-color: white;
         --smoke-color: whitesmoke;
+        --randomize-col: 3/6;
+        --drag-col: 7/9;
+        --randomize-height: 80px;
+        --randomize-width: 120px;
+        --randomize-fsize: 20px;
+        --drag-width: 120px;
+        --drag-height: 80px;
+        --drag-fsize: 20px;
         --body-width: 100vw;
         --header-fsize: 32px;
         --comp-col: 5/7;
         --comp-row: 3/6;
         --player-col: 5/7;
-        --player-row: 7/9;
+        --player-row: 7/12;
         --before-width: 250px;
         --before-height: 1px;
-        --before-top: 65.8%;
+        --before-top: 50%;
+        --before-topm: 58px;
         --before-left: 50%;
         --before-margin: -125px;
         --computer-content: '6 ships';
         --player-content: '6 ships';
+        --game-mheight: 600px;
+        --body-height: 800px;
     }
 }
 
@@ -69,21 +102,28 @@
 body {
     background-color: var(--main-color);
     display: grid;
+    grid-template-columns: repeat(1, 100%);
+    grid-template-rows: repeat(20, 5%);
+    grid-template-areas: 
+        "header"
+        "container"
+        "footer";
     width: var(--body-width);
     height: 100vh;
-    min-height: 345px;
+    min-height: var(--body-height);
+    min-width: 300px;
     overflow: hidden;
     justify-content: center;
     align-content: center;
-    grid-template-columns: 100%;
-    grid-template-rows: 100%;
     padding: 0;
     margin: 0;
+    grid-gap: 0;
+    overflow-y: auto;
 }
 
 .gameContainer::before {
     content: '';
-    margin-top: -100px;
+    margin-top: var(--before-topm);
     bottom: 0;
     /* top: 45.5%;
     left: 50%; */
@@ -98,16 +138,18 @@ body {
 }
 
 .gameContainer {
+    grid-area: "container";
     position: relative;
     grid-column: 1/2;
-    grid-row: 1/2;
+    grid-row: 3/18;
     display: grid;
+    max-width: 800px;
     width: 100%;
+    min-height: var(--game-minheight);
     height: 100%;
     grid-template-areas: 
-            "header header"
-            "player comp"
-            "footer footer";
+            "buttons buttons"
+            "player comp";
     grid-template-columns: repeat(10, 10%);
     grid-template-rows: repeat(10, 10%);
     justify-self: center;
@@ -126,10 +168,11 @@ body {
     font-size: var(--header-fsize);
     background-color: var(--dark-color);
     color: var(--accent-color);
-    grid-row: 1/2;
-    grid-column: 1/11;
+    grid-row: 1/3;
+    grid-column: 1/2;
     width: 100%;
     height: 100%;
+    z-index: 5;
 }
 
 /* .header::before {
@@ -159,22 +202,19 @@ body {
 
 .drag {
     color: white;
-    grid-row: 2/3;
+    grid-row: 1/2;
+    z-index: 2;
     border-bottom-left-radius: 1px;
     border-bottom-right-radius: 1px;    
-    grid-column: 6/7;
-    width: 85px;
-    height: 40px;
-    outline: 1px solid white;
+    grid-column: var(--drag-col);
+    width: var(--drag-width);
+    height: var(--drag-height);
+    outline: 2px solid white;
     border: transparent;
     background-color: #4f4f57;
-    margin-left: 5px;
-    font-weight: 100;
-}
-
-
-.draggable {
-    
+    margin-left: 15px;
+    font-weight: 200;
+    font-size: var(--drag-fsize);
 }
 
 .draggable.dragging {
@@ -186,17 +226,18 @@ body {
     border-bottom-left-radius: 1px;
     border-bottom-right-radius: 1px;
     color: white;
-    grid-row: 2/3;
-    grid-column: 5/8;
-    width: 85px;
-    height: 40px;
+    grid-row: 1/2;
+    z-index: 2;
+    grid-column: var(--randomize-col); /* 4/6*/
+    width: var(--randomize-width);
+    height: var(--randomize-height);
     right: 50%;
-    margin-left: -42.5;
-    outline: 1px solid white;
+    outline: 2px solid white;
     border: transparent;
-    margin-left: -30px;
-    margin-right: 5px;
-    font-weight: 100;
+    margin-left: -40px;
+    margin-right: 15px;
+    font-weight: 200;
+    font-size: var(--randomize-fsize);
 }
 
 .placeYourShipsUI {
@@ -277,10 +318,6 @@ body {
     margin: 5px;
     z-index: 5;
     background-color: transparent;
-}
-
-.draggable {
-
 }
 
 button:hover {
@@ -435,6 +472,14 @@ button:active {
     box-shadow: inset 0px 0px .5px white;
 }
 
+.placeYourShipsEventListeners {
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    box-shadow: inset 0px 0px 2px black;
+    background-color: #FFB444;
+}
+
 .draggableSpace {
     width: 20px;
     height: 20px;
@@ -452,13 +497,21 @@ button:active {
     background-color: var(--main-color);
 }
 
+.hoveredOpponent {
+
+}
+
+.hoveredOpponent:hover {
+    background-color: white;
+}
+
 .footer {
     display: flex;
     justify-content: center;
     grid-gap: 10px;
     grid-area: 'footer';
-    grid-column: 1/11;
-    grid-row: 10/11;
+    grid-column: 1/2;
+    grid-row: 19/21;
     background-color: var(--dark-color);
     color: var(--accent-color);
     font-size: 10px;
@@ -508,7 +561,7 @@ button:active {
     margin-left: -150px;
     z-index: 10;
     background-color: #4f4f57;
-    outline: white 2px solid;
+    outline: whitesmoke 2px solid;
 }
 
 .winnerHeader {
@@ -519,7 +572,7 @@ button:active {
     align-self: center;
     font-family: "Helvetica Neue", Helvetica, sans-serif;
     font-size: 25px;
-    font-weight: 100;
+    font-weight: 200;
     color: aquamarine;
     text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
 }

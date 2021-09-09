@@ -19,21 +19,34 @@ So in Gameboard.js -----
 
     // I then need to make the ships over the 'player1' board be hidden, so users can play normally
 
-    The drag ship logic needs to be written, and the methods for dragging
-    the items should be learned. Also, I have yet to figure out what types
-    of elements or items should be created for that process
-        Maybe a before pseudoelement can be used, to overlay entirely over the 'player1' board
-        Once the last ship has been placed, a 'play' button should appear ontop of
-        the pseudoelement, which will of course cause it to disappear as well
+    // The drag ship logic needs to be written, and the methods for dragging
+    // the items should be learned. Also, I have yet to figure out what types
+    // of elements or items should be created for that process
+    //     Maybe a before pseudoelement can be used, to overlay entirely over the 'player1' board
+    //     Once the last ship has been placed, a 'play' button should appear ontop of
+    //     the pseudoelement, which will of course cause it to disappear as well
 
-    Drag Ship and Randomize buttons should be unclickable after a game has already started
-        clicking either will cause them to have their eventListener removed
-        someone losing the game will prompt a 'play again' button that will wipe the grid and
-        readd event listeners to both buttons
+    // Drag Ship and Randomize buttons should be unclickable after a game has already started
+    //     clicking either will cause them to have their eventListener removed
+    //     someone losing the game will prompt a 'play again' button that will wipe the grid and
+    //     readd event listeners to both buttons
 
     Also, if the user presses an already activated empty grid spot, the computer shouldn't take that
     as an opportunity to move. Handy for development, but not for live play.
 
     I have to refactor the code, and write some tests (garbage example ones)
+// --------------------------------------------------------------------
+    // Things needing attention:
+    //     Once finished with a game, when you click:
+    //         randomize:
+    //             not all available places are able to be clicked. the takenspaces array needs attn
+    //         placeyourownships:
+    //             you cannot place ships
 
+    //     Once finished, the place your own ships option starts acting oddly
+    // // //       finished  - the place your own ships option doesn't respect the original
+    // // //       finished    - placement rules of the game
+
+    //     finished possibly - The ship placing logic for the computer
+                                when near borders still isn't perfected
 */

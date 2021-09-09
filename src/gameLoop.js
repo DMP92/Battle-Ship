@@ -41,43 +41,82 @@ const GameLoop = (() => {
     // function that gets players turn, and upon taking the shoot action, switches it
     function playerTurn(index) {
         // if it isn't the players turn, they will not go
-        if (currenTurn === 'player1' || gB.shareStreak('player1')) {
-            player1.turnOrder(index, user.turn);
+        if (gB.isGameOver() === false) {
+            if (currenTurn === 'player1' || gB.shareStreak('player1')) {
+                if (gB.shareStreak('computer') === false) {
+                    if (gB.isGameOver() === false) {
+                        players.classList.remove('activePlayer');
+                        computers.classList.add('activePlayer');
+                        player1.turnOrder(index, user.turn);
+                        takenSpaces.push(index);
+                        isPlayersTurnOver();
+                    }
+                }
+            }
+        } else {
+            endGame('shees');
+        }
+    }
+
+    function isPlayersTurnOver() {
+        if (gB.shareStreak('player1') === false) {
             currenTurn = 'computer';
+        } else {
+            currenTurn = 'player1';
+            players.classList.remove('activePlayer');
+            computers.classList.add('activePlayer');
         }
     }
 
     function isComputerTurnOver() {
-        if (gB.shareStreak('computer') === true) {
-            currenTurn = 'computer';
-        } else {
+        if (gB.shareStreak('computer') === false) {
+            players.classList.remove('activePlayer');
+            computers.classList.add('activePlayer');
             currenTurn = 'player1';
+        } else {
+            currenTurn = 'computer';
+            computers.classList.remove('activePlayer');
+            players.classList.add('activePlayer');
         }
     }
 
     function computerTurn() {
         // if it isn't the computer's turn, it will not go
         if (currenTurn === 'computer' || gB.shareStreak('computer')) {
-            computers.classList.toggle('activePlayer');
-            players.classList.toggle('activePlayer');
-            computer.aim('computer');
+            if (gB.isGameOver() === false) {
+                computer.aim('computer');
+            }
+            if (gB.isGameOver() === true) {
+                endGame('compu');
+                computers.classList.remove('activePlayer');
+                players.classList.remove('activePlayer');
+            }
         }
         isComputerTurnOver();
     }
 
-    function allowGamePlay() {
+    const takenSpaces = [];
+    function allowGamePlay(condition) {
         computers.classList.toggle('activePlayer');
         const computerGrid = document.querySelector('.computer').childNodes;
         const spaces = Array.from(computerGrid);
 
         // event listeners for the board that is the target of the user
-        spaces.forEach((space) => space.addEventListener('click', (e) => {
-            const n = spaces.indexOf(space);
-            playerTurn(n);
-            if (player1.checkStreak('player1') === false) {
-                setTimeout(() => { computerTurn(); }, 600);
-            }
-        }));
+        if (gB.isGameOver() === false && currenTurn === 'player1' && gB.shareStreak('computer') === false) {
+            spaces.forEach((space) => space.addEventListener('click', (e) => {
+                const n = spaces.indexOf(space);
+
+                if (!takenSpaces.includes(n)) {
+                    playerTurn(n);
+                    endGame('player');
+                    if (player1.checkStreak('player1') === false) {
+                        if (gB.isGameOver() === false) {
+                            computerTurn();
+                        }
+                    }
+                }
+            }));
+        }
     }
 
     // eventListener for randomized play
@@ -90,8 +129,22 @@ const GameLoop = (() => {
         allowGamePlay();
     }
 
-    function endGame() {
+    function endGame(se) {
+        if (se !== undefined) console.log(se);
+        if (gB.isGameOver() === true) {
+            console.log('hey');
+            takenSpaces.splice(0, takenSpaces.length);
+            computers.classList.remove('activePlayer');
+            players.classList.remove('activePlayer');
+            restartGame();
 
+            currenTurn = 'player1';
+        }
+    }
+
+    function gridCreation() {
+        computerPlayer.arrayCreation(10, 10, 'player1');
+        playerOne.arrayCreation(10, 10, 'computer');
     }
 
     return {
@@ -100,11 +153,11 @@ const GameLoop = (() => {
         allowGamePlay,
         beginGame,
         endGame,
+        gridCreation,
     };
 })();
 
 const moduleForThePlaceYourShipsButton = (() => {
-    const gL = GameLoop;
     // conditionals to handle drag ships button
     const placeYourShipsButton = document.querySelector('.drag');
     const panelForPlaceYourShipsUI = document.createElement('div');
@@ -198,6 +251,24 @@ const moduleForThePlaceYourShipsButton = (() => {
             : closesEntirePlaceYourShipsUI();
         listenForShipDrag();
         switchShipAxis();
+        enableMouseoverColorIndicatorForGridSpaces();
+    }
+
+    function enableMouseoverColorIndicatorForGridSpaces() {
+        const spaces = document.querySelectorAll('.space');
+        const spaceArray = Array.from(spaces);
+        spaceArray.forEach((space) => {
+            space.addEventListener('dragover', () => {
+                space.classList.add('placeYourShipsEventListeners');
+                disableMouseoverColorIndicatorForGridSpaces(space);
+            });
+        });
+    }
+
+    function disableMouseoverColorIndicatorForGridSpaces(space) {
+        space.addEventListener('dragleave', () => {
+            space.classList.remove('placeYourShipsEventListeners');
+        });
     }
 
     function listenForShipDrag() {
@@ -206,8 +277,10 @@ const moduleForThePlaceYourShipsButton = (() => {
         const arrayOfSpaces = Array.from(spaces);
 
         draggable.forEach((drag) => drag.addEventListener('dragstart', () => {
+            const randomizeButton = document.querySelector('.randomize');
             drag.classList.add('dragging');
             listenForShipDragEnd();
+            randomizeButton.removeEventListener('click', gL.prepareShips);
         }));
     }
 
@@ -234,7 +307,6 @@ const moduleForThePlaceYourShipsButton = (() => {
 
     function beginGame() {
         const containerForAllUserShipWrappers = document.querySelector('.containerForAllUserShipWrappers');
-        console.log(containerForAllUserShipWrappers.children.length)
         if (containerForAllUserShipWrappers.children.length === 0) {
             const playButton = document.createElement('button');
             containerForAllUserShipWrappers.appendChild(playButton);
@@ -262,16 +334,18 @@ const moduleForThePlaceYourShipsButton = (() => {
     }
 
     const spaceArray = [];
-
+    const hoveredArray = [];
     function dragShipOverSpacesToGetCoordinates() {
         const spaces = document.querySelectorAll('.space');
         const arrayOfSpaces = Array.from(spaces);
+
         spaces.forEach((thisSpace) => thisSpace.addEventListener('dragover', (e) => {
+            manipulateEventListeners();
             const draggedElement = document.querySelector('.dragging');
             const { length } = draggedElement.children;
             const index = arrayOfSpaces.indexOf(thisSpace);
+            hoveredArray.push(index);
             const coordinatesOfShipBeingPlaced = gB.parseIndex(index);
-
             spaceArray.push(coordinatesOfShipBeingPlaced);
         }));
     }
@@ -295,16 +369,15 @@ const playerOne = gameBoard();
 const computerPlayer = gameBoard();
 
 // Creates grid on page load
+const gL = GameLoop;
 window.addEventListener('load', () => {
-    computerPlayer.arrayCreation(10, 10, 'computer');
-    playerOne.arrayCreation(10, 10, 'player1');
+    gL.gridCreation();
 });
 
 const eventListenersForRandomizeAndPlaceShipsButtons = (() => {
     const randomizeShipsButton = document.querySelector('.randomize');
     const placeYourShipsButton = document.querySelector('.drag');
 
-    const gL = GameLoop;
     const placeShipsModule = moduleForThePlaceYourShipsButton;
 
     function eventListenerStorage() {
@@ -314,21 +387,35 @@ const eventListenersForRandomizeAndPlaceShipsButtons = (() => {
 
     function randomizeShips() {
         gL.beginGame();
+        gL.allowGamePlay();
         placeYourShipsButton.removeEventListener('click', placeYourShips);
         randomizeShipsButton.removeEventListener('click', randomizeShips);
     }
 
     function placeYourShips() {
         placeShipsModule.activatePlaceYourShipsButton();
+    }
+
+    function disableEventListeners() {
         placeYourShipsButton.removeEventListener('click', placeYourShips);
         randomizeShipsButton.removeEventListener('click', randomizeShips);
     }
 
     return {
         eventListenerStorage,
+        disableEventListeners,
     };
 });
 const initializeEventListeners = eventListenersForRandomizeAndPlaceShipsButtons();
 initializeEventListeners.eventListenerStorage();
+
+function restartGame() {
+    initializeEventListeners.eventListenerStorage();
+    player1.clearShotArray();
+}
+
+function manipulateEventListeners() {
+    initializeEventListeners.disableEventListeners();
+}
 
 module.exports = GameLoop;

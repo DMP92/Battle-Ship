@@ -17,6 +17,10 @@ const Player = (name, turn) => {
     this.turn = turn;
     const shot = [];
 
+    function clearShotArray() {
+        shot.splice(0, shot.length);
+    }
+
     const time = [1400, 1500, 1600, 1350, 1700];
 
     const computerGrid = document.querySelector('.computer').childNodes;
@@ -37,12 +41,13 @@ const Player = (name, turn) => {
 
     function notYourTurn() {
         alert(`${name} it is not your turn`);
-        console.log(name);
+        
     }
 
     function turnOrder(index, turn) {
         computers.classList.toggle('activePlayer');
         players.classList.toggle('activePlayer');
+        
         aim(name, index);
     }
 
@@ -77,7 +82,9 @@ const Player = (name, turn) => {
     // eslint-disable-next-line consistent-return
     function aim(name, index) {
         if (name === 'computer') {
-            shoot(index);
+            if (gB.isGameOver() === false) {
+                shoot(index);
+            }
         } else if (name !== 'computer') {
             shot.includes(index)
                 ? 'You already shot this spot'
@@ -102,6 +109,7 @@ const Player = (name, turn) => {
         turnOrder,
         shipAction,
         activateComputerGrid,
+        clearShotArray,
     };
 };
 

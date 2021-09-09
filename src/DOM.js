@@ -6,6 +6,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-console */
+const loopAccess = require('./index');
+
+const gL = loopAccess;
+
 const printToDOM = (() => {
     const gameContainer = document.querySelector('.gameContainer');
     const playerContainer = document.querySelector('.player');
@@ -78,14 +82,13 @@ const printToDOM = (() => {
         playAgainButton(modalForAnnouncingWinner);
         announcementText(winner, modalForAnnouncingWinner);
     }
-    announceWinner('Devin');
 
     function announcementText(winner, div) {
         const winnerText = document.createElement('div');
         winnerText.classList.add('winnerHeader');
         div.appendChild(winnerText);
 
-        winner === 'computer'
+        winner === 'Computer'
             ? winnerText.textContent = 'The Computer has won!'
             : winnerText.textContent = `${winner} has beaten the Computer!`;
     }
