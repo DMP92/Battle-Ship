@@ -121,6 +121,11 @@ body {
     overflow-y: auto;
 }
 
+@font-face {
+  font-family: Copperplate;
+  src: url(src/Copperplate Regular/Copperplate Regular.ttf);
+}
+
 .gameContainer::before {
     content: '';
     margin-top: var(--before-topm);
